@@ -1,0 +1,12 @@
+C:\Users\ammar.vohra\Desktop\Field Staff Tracking\FieldStaffTracking\FieldStaff.Domain\bin\Debug\net8.0\FieldStaff.Domain.deps.json
+C:\Users\ammar.vohra\Desktop\Field Staff Tracking\FieldStaffTracking\FieldStaff.Domain\bin\Debug\net8.0\FieldStaff.Domain.dll
+C:\Users\ammar.vohra\Desktop\Field Staff Tracking\FieldStaffTracking\FieldStaff.Domain\bin\Debug\net8.0\FieldStaff.Domain.pdb
+C:\Users\ammar.vohra\Desktop\Field Staff Tracking\FieldStaffTracking\FieldStaff.Domain\obj\Debug\net8.0\FieldStaff.Domain.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\ammar.vohra\Desktop\Field Staff Tracking\FieldStaffTracking\FieldStaff.Domain\obj\Debug\net8.0\FieldStaff.Domain.AssemblyInfoInputs.cache
+C:\Users\ammar.vohra\Desktop\Field Staff Tracking\FieldStaffTracking\FieldStaff.Domain\obj\Debug\net8.0\FieldStaff.Domain.AssemblyInfo.cs
+C:\Users\ammar.vohra\Desktop\Field Staff Tracking\FieldStaffTracking\FieldStaff.Domain\obj\Debug\net8.0\FieldStaff.Domain.csproj.CoreCompileInputs.cache
+C:\Users\ammar.vohra\Desktop\Field Staff Tracking\FieldStaffTracking\FieldStaff.Domain\obj\Debug\net8.0\FieldStaff.Domain.dll
+C:\Users\ammar.vohra\Desktop\Field Staff Tracking\FieldStaffTracking\FieldStaff.Domain\obj\Debug\net8.0\refint\FieldStaff.Domain.dll
+C:\Users\ammar.vohra\Desktop\Field Staff Tracking\FieldStaffTracking\FieldStaff.Domain\obj\Debug\net8.0\FieldStaff.Domain.pdb
+C:\Users\ammar.vohra\Desktop\Field Staff Tracking\FieldStaffTracking\FieldStaff.Domain\obj\Debug\net8.0\ref\FieldStaff.Domain.dll
+C:\Users\ammar.vohra\Desktop\Field Staff Tracking\FieldStaffTracking\FieldStaff.Domain\obj\Debug\net8.0\FieldSta.31F1E55B.Up2Date

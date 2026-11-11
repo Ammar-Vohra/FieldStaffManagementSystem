@@ -1,0 +1,221 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\ammar.vohra\\Desktop\\Field Staff Tracking\\FieldStaffTracking\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{D6E9F3E6-EB95-7B6D-B335-C5E66610B8EC}|FieldStaff.API\\FieldStaff.API.csproj|c:\\users\\ammar.vohra\\desktop\\field staff tracking\\fieldstafftracking\\fieldstaff.api\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{D6E9F3E6-EB95-7B6D-B335-C5E66610B8EC}|FieldStaff.API\\FieldStaff.API.csproj|solutionrelative:fieldstaff.api\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{D6E9F3E6-EB95-7B6D-B335-C5E66610B8EC}|FieldStaff.API\\FieldStaff.API.csproj|c:\\users\\ammar.vohra\\desktop\\field staff tracking\\fieldstafftracking\\fieldstaff.api\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{D6E9F3E6-EB95-7B6D-B335-C5E66610B8EC}|FieldStaff.API\\FieldStaff.API.csproj|solutionrelative:fieldstaff.api\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{D6E9F3E6-EB95-7B6D-B335-C5E66610B8EC}|FieldStaff.API\\FieldStaff.API.csproj|c:\\users\\ammar.vohra\\desktop\\field staff tracking\\fieldstafftracking\\fieldstaff.api\\controllers\\authcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{D6E9F3E6-EB95-7B6D-B335-C5E66610B8EC}|FieldStaff.API\\FieldStaff.API.csproj|solutionrelative:fieldstaff.api\\controllers\\authcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{9253D87F-72D7-FEF6-CD7F-CE2A8CEE6AB5}|FieldStaff.Application\\FieldStaff.Application.csproj|c:\\users\\ammar.vohra\\desktop\\field staff tracking\\fieldstafftracking\\fieldstaff.application\\dtos\\logindto\\loginrequestdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{9253D87F-72D7-FEF6-CD7F-CE2A8CEE6AB5}|FieldStaff.Application\\FieldStaff.Application.csproj|solutionrelative:fieldstaff.application\\dtos\\logindto\\loginrequestdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{D738B3F8-E995-79AC-C451-F2F1BE036995}|FieldStaff.Infrastructure\\FieldStaff.Infrastructure.csproj|c:\\users\\ammar.vohra\\desktop\\field staff tracking\\fieldstafftracking\\fieldstaff.infrastructure\\services\\auth\\jwtservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{D738B3F8-E995-79AC-C451-F2F1BE036995}|FieldStaff.Infrastructure\\FieldStaff.Infrastructure.csproj|solutionrelative:fieldstaff.infrastructure\\services\\auth\\jwtservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{D738B3F8-E995-79AC-C451-F2F1BE036995}|FieldStaff.Infrastructure\\FieldStaff.Infrastructure.csproj|c:\\users\\ammar.vohra\\desktop\\field staff tracking\\fieldstafftracking\\fieldstaff.infrastructure\\dependencyinjection.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{D738B3F8-E995-79AC-C451-F2F1BE036995}|FieldStaff.Infrastructure\\FieldStaff.Infrastructure.csproj|solutionrelative:fieldstaff.infrastructure\\dependencyinjection.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{9253D87F-72D7-FEF6-CD7F-CE2A8CEE6AB5}|FieldStaff.Application\\FieldStaff.Application.csproj|c:\\users\\ammar.vohra\\desktop\\field staff tracking\\fieldstafftracking\\fieldstaff.application\\dtos\\logindto\\loginresponsedto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{9253D87F-72D7-FEF6-CD7F-CE2A8CEE6AB5}|FieldStaff.Application\\FieldStaff.Application.csproj|solutionrelative:fieldstaff.application\\dtos\\logindto\\loginresponsedto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{9253D87F-72D7-FEF6-CD7F-CE2A8CEE6AB5}|FieldStaff.Application\\FieldStaff.Application.csproj|c:\\users\\ammar.vohra\\desktop\\field staff tracking\\fieldstafftracking\\fieldstaff.application\\features\\auth\\ijwtservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{9253D87F-72D7-FEF6-CD7F-CE2A8CEE6AB5}|FieldStaff.Application\\FieldStaff.Application.csproj|solutionrelative:fieldstaff.application\\features\\auth\\ijwtservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{D738B3F8-E995-79AC-C451-F2F1BE036995}|FieldStaff.Infrastructure\\FieldStaff.Infrastructure.csproj|c:\\users\\ammar.vohra\\desktop\\field staff tracking\\fieldstafftracking\\fieldstaff.infrastructure\\services\\auth\\authservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{D738B3F8-E995-79AC-C451-F2F1BE036995}|FieldStaff.Infrastructure\\FieldStaff.Infrastructure.csproj|solutionrelative:fieldstaff.infrastructure\\services\\auth\\authservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{D738B3F8-E995-79AC-C451-F2F1BE036995}|FieldStaff.Infrastructure\\FieldStaff.Infrastructure.csproj|c:\\users\\ammar.vohra\\desktop\\field staff tracking\\fieldstafftracking\\fieldstaff.infrastructure\\repositories\\authrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{D738B3F8-E995-79AC-C451-F2F1BE036995}|FieldStaff.Infrastructure\\FieldStaff.Infrastructure.csproj|solutionrelative:fieldstaff.infrastructure\\repositories\\authrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{9253D87F-72D7-FEF6-CD7F-CE2A8CEE6AB5}|FieldStaff.Application\\FieldStaff.Application.csproj|c:\\users\\ammar.vohra\\desktop\\field staff tracking\\fieldstafftracking\\fieldstaff.application\\features\\auth\\iauthrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{9253D87F-72D7-FEF6-CD7F-CE2A8CEE6AB5}|FieldStaff.Application\\FieldStaff.Application.csproj|solutionrelative:fieldstaff.application\\features\\auth\\iauthrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{9253D87F-72D7-FEF6-CD7F-CE2A8CEE6AB5}|FieldStaff.Application\\FieldStaff.Application.csproj|c:\\users\\ammar.vohra\\desktop\\field staff tracking\\fieldstafftracking\\fieldstaff.application\\features\\auth\\iauthservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{9253D87F-72D7-FEF6-CD7F-CE2A8CEE6AB5}|FieldStaff.Application\\FieldStaff.Application.csproj|solutionrelative:fieldstaff.application\\features\\auth\\iauthservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 1,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{1c4feeaa-4718-4aa9-859d-94ce25d182ba}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "appsettings.json",
+              "DocumentMoniker": "C:\\Users\\ammar.vohra\\Desktop\\Field Staff Tracking\\FieldStaffTracking\\FieldStaff.API\\appsettings.json",
+              "RelativeDocumentMoniker": "FieldStaff.API\\appsettings.json",
+              "ToolTip": "C:\\Users\\ammar.vohra\\Desktop\\Field Staff Tracking\\FieldStaffTracking\\FieldStaff.API\\appsettings.json",
+              "RelativeToolTip": "FieldStaff.API\\appsettings.json",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2026-11-11T11:59:32.776Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "AuthController.cs",
+              "DocumentMoniker": "C:\\Users\\ammar.vohra\\Desktop\\Field Staff Tracking\\FieldStaffTracking\\FieldStaff.API\\Controllers\\AuthController.cs",
+              "RelativeDocumentMoniker": "FieldStaff.API\\Controllers\\AuthController.cs",
+              "ToolTip": "C:\\Users\\ammar.vohra\\Desktop\\Field Staff Tracking\\FieldStaffTracking\\FieldStaff.API\\Controllers\\AuthController.cs",
+              "RelativeToolTip": "FieldStaff.API\\Controllers\\AuthController.cs",
+              "ViewState": "AgIAAAgAAAAAAAAAAAAswCIAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-11-11T07:30:34.365Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "Program.cs",
+              "DocumentMoniker": "C:\\Users\\ammar.vohra\\Desktop\\Field Staff Tracking\\FieldStaffTracking\\FieldStaff.API\\Program.cs",
+              "RelativeDocumentMoniker": "FieldStaff.API\\Program.cs",
+              "ToolTip": "C:\\Users\\ammar.vohra\\Desktop\\Field Staff Tracking\\FieldStaffTracking\\FieldStaff.API\\Program.cs",
+              "RelativeToolTip": "FieldStaff.API\\Program.cs",
+              "ViewState": "AgIAABsAAAAAAAAAAAAAAFIAAAAaAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-11-11T07:01:20.371Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "DependencyInjection.cs",
+              "DocumentMoniker": "C:\\Users\\ammar.vohra\\Desktop\\Field Staff Tracking\\FieldStaffTracking\\FieldStaff.Infrastructure\\DependencyInjection.cs",
+              "RelativeDocumentMoniker": "FieldStaff.Infrastructure\\DependencyInjection.cs",
+              "ToolTip": "C:\\Users\\ammar.vohra\\Desktop\\Field Staff Tracking\\FieldStaffTracking\\FieldStaff.Infrastructure\\DependencyInjection.cs",
+              "RelativeToolTip": "FieldStaff.Infrastructure\\DependencyInjection.cs",
+              "ViewState": "AgIAAAgAAAAAAAAAAAAAwCIAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-11-11T06:45:00.927Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "AuthRepository.cs",
+              "DocumentMoniker": "C:\\Users\\ammar.vohra\\Desktop\\Field Staff Tracking\\FieldStaffTracking\\FieldStaff.Infrastructure\\Repositories\\AuthRepository.cs",
+              "RelativeDocumentMoniker": "FieldStaff.Infrastructure\\Repositories\\AuthRepository.cs",
+              "ToolTip": "C:\\Users\\ammar.vohra\\Desktop\\Field Staff Tracking\\FieldStaffTracking\\FieldStaff.Infrastructure\\Repositories\\AuthRepository.cs",
+              "RelativeToolTip": "FieldStaff.Infrastructure\\Repositories\\AuthRepository.cs",
+              "ViewState": "AgIAAAoAAAAAAAAAAAAQwBYAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-11-11T06:07:35.113Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "IAuthRepository.cs",
+              "DocumentMoniker": "C:\\Users\\ammar.vohra\\Desktop\\Field Staff Tracking\\FieldStaffTracking\\FieldStaff.Application\\Features\\Auth\\IAuthRepository.cs",
+              "RelativeDocumentMoniker": "FieldStaff.Application\\Features\\Auth\\IAuthRepository.cs",
+              "ToolTip": "C:\\Users\\ammar.vohra\\Desktop\\Field Staff Tracking\\FieldStaffTracking\\FieldStaff.Application\\Features\\Auth\\IAuthRepository.cs",
+              "RelativeToolTip": "FieldStaff.Application\\Features\\Auth\\IAuthRepository.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-11-11T06:05:46.176Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "JwtService.cs",
+              "DocumentMoniker": "C:\\Users\\ammar.vohra\\Desktop\\Field Staff Tracking\\FieldStaffTracking\\FieldStaff.Infrastructure\\Services\\Auth\\JwtService.cs",
+              "RelativeDocumentMoniker": "FieldStaff.Infrastructure\\Services\\Auth\\JwtService.cs",
+              "ToolTip": "C:\\Users\\ammar.vohra\\Desktop\\Field Staff Tracking\\FieldStaffTracking\\FieldStaff.Infrastructure\\Services\\Auth\\JwtService.cs",
+              "RelativeToolTip": "FieldStaff.Infrastructure\\Services\\Auth\\JwtService.cs",
+              "ViewState": "AgIAABgAAAAAAAAAAAAAABMAAAA0AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-11-11T05:59:17.12Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "AuthService.cs",
+              "DocumentMoniker": "C:\\Users\\ammar.vohra\\Desktop\\Field Staff Tracking\\FieldStaffTracking\\FieldStaff.Infrastructure\\Services\\Auth\\AuthService.cs",
+              "RelativeDocumentMoniker": "FieldStaff.Infrastructure\\Services\\Auth\\AuthService.cs",
+              "ToolTip": "C:\\Users\\ammar.vohra\\Desktop\\Field Staff Tracking\\FieldStaffTracking\\FieldStaff.Infrastructure\\Services\\Auth\\AuthService.cs",
+              "RelativeToolTip": "FieldStaff.Infrastructure\\Services\\Auth\\AuthService.cs",
+              "ViewState": "AgIAACUAAAAAAAAAAAAkwDcAAAAOAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-11-11T05:59:10.03Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "IJwtService.cs",
+              "DocumentMoniker": "C:\\Users\\ammar.vohra\\Desktop\\Field Staff Tracking\\FieldStaffTracking\\FieldStaff.Application\\Features\\Auth\\IJwtService.cs",
+              "RelativeDocumentMoniker": "FieldStaff.Application\\Features\\Auth\\IJwtService.cs",
+              "ToolTip": "C:\\Users\\ammar.vohra\\Desktop\\Field Staff Tracking\\FieldStaffTracking\\FieldStaff.Application\\Features\\Auth\\IJwtService.cs",
+              "RelativeToolTip": "FieldStaff.Application\\Features\\Auth\\IJwtService.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAuwAgAAAAVAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-11-11T05:56:43.141Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 11,
+              "Title": "IAuthService.cs",
+              "DocumentMoniker": "C:\\Users\\ammar.vohra\\Desktop\\Field Staff Tracking\\FieldStaffTracking\\FieldStaff.Application\\Features\\Auth\\IAuthService.cs",
+              "RelativeDocumentMoniker": "FieldStaff.Application\\Features\\Auth\\IAuthService.cs",
+              "ToolTip": "C:\\Users\\ammar.vohra\\Desktop\\Field Staff Tracking\\FieldStaffTracking\\FieldStaff.Application\\Features\\Auth\\IAuthService.cs",
+              "RelativeToolTip": "FieldStaff.Application\\Features\\Auth\\IAuthService.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAABDAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-11-11T05:49:25.455Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "LoginResponseDto.cs",
+              "DocumentMoniker": "C:\\Users\\ammar.vohra\\Desktop\\Field Staff Tracking\\FieldStaffTracking\\FieldStaff.Application\\DTOs\\LoginDto\\LoginResponseDto.cs",
+              "RelativeDocumentMoniker": "FieldStaff.Application\\DTOs\\LoginDto\\LoginResponseDto.cs",
+              "ToolTip": "C:\\Users\\ammar.vohra\\Desktop\\Field Staff Tracking\\FieldStaffTracking\\FieldStaff.Application\\DTOs\\LoginDto\\LoginResponseDto.cs",
+              "RelativeToolTip": "FieldStaff.Application\\DTOs\\LoginDto\\LoginResponseDto.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA8AAAAnAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-11-11T05:46:11.055Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "LoginRequestDto.cs",
+              "DocumentMoniker": "C:\\Users\\ammar.vohra\\Desktop\\Field Staff Tracking\\FieldStaffTracking\\FieldStaff.Application\\DTOs\\LoginDto\\LoginRequestDto.cs",
+              "RelativeDocumentMoniker": "FieldStaff.Application\\DTOs\\LoginDto\\LoginRequestDto.cs",
+              "ToolTip": "C:\\Users\\ammar.vohra\\Desktop\\Field Staff Tracking\\FieldStaffTracking\\FieldStaff.Application\\DTOs\\LoginDto\\LoginRequestDto.cs",
+              "RelativeToolTip": "FieldStaff.Application\\DTOs\\LoginDto\\LoginRequestDto.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABEAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-11-11T05:41:10.147Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="FieldStaff.API/FieldStaff.API.csproj" />
+  <Project Path="FieldStaff.Application/FieldStaff.Application.csproj" />
+  <Project Path="FieldStaff.Domain/FieldStaff.Domain.csproj" />
+  <Project Path="FieldStaff.Infrastructure/FieldStaff.Infrastructure.csproj" />
+</Solution>

@@ -1,0 +1,15 @@
+C:\Users\ammar.vohra\Desktop\Field Staff Tracking\FieldStaffTracking\FieldStaff.Application\bin\Debug\net8.0\FieldStaff.Application.deps.json
+C:\Users\ammar.vohra\Desktop\Field Staff Tracking\FieldStaffTracking\FieldStaff.Application\bin\Debug\net8.0\FieldStaff.Application.dll
+C:\Users\ammar.vohra\Desktop\Field Staff Tracking\FieldStaffTracking\FieldStaff.Application\bin\Debug\net8.0\FieldStaff.Application.pdb
+C:\Users\ammar.vohra\Desktop\Field Staff Tracking\FieldStaffTracking\FieldStaff.Application\bin\Debug\net8.0\FieldStaff.Domain.dll
+C:\Users\ammar.vohra\Desktop\Field Staff Tracking\FieldStaffTracking\FieldStaff.Application\bin\Debug\net8.0\FieldStaff.Domain.pdb
+C:\Users\ammar.vohra\Desktop\Field Staff Tracking\FieldStaffTracking\FieldStaff.Application\obj\Debug\net8.0\FieldStaff.Application.csproj.AssemblyReference.cache
+C:\Users\ammar.vohra\Desktop\Field Staff Tracking\FieldStaffTracking\FieldStaff.Application\obj\Debug\net8.0\FieldStaff.Application.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\ammar.vohra\Desktop\Field Staff Tracking\FieldStaffTracking\FieldStaff.Application\obj\Debug\net8.0\FieldStaff.Application.AssemblyInfoInputs.cache
+C:\Users\ammar.vohra\Desktop\Field Staff Tracking\FieldStaffTracking\FieldStaff.Application\obj\Debug\net8.0\FieldStaff.Application.AssemblyInfo.cs
+C:\Users\ammar.vohra\Desktop\Field Staff Tracking\FieldStaffTracking\FieldStaff.Application\obj\Debug\net8.0\FieldStaff.Application.csproj.CoreCompileInputs.cache
+C:\Users\ammar.vohra\Desktop\Field Staff Tracking\FieldStaffTracking\FieldStaff.Application\obj\Debug\net8.0\FieldSta.61AEC9C7.Up2Date
+C:\Users\ammar.vohra\Desktop\Field Staff Tracking\FieldStaffTracking\FieldStaff.Application\obj\Debug\net8.0\FieldStaff.Application.dll
+C:\Users\ammar.vohra\Desktop\Field Staff Tracking\FieldStaffTracking\FieldStaff.Application\obj\Debug\net8.0\refint\FieldStaff.Application.dll
+C:\Users\ammar.vohra\Desktop\Field Staff Tracking\FieldStaffTracking\FieldStaff.Application\obj\Debug\net8.0\FieldStaff.Application.pdb
+C:\Users\ammar.vohra\Desktop\Field Staff Tracking\FieldStaffTracking\FieldStaff.Application\obj\Debug\net8.0\ref\FieldStaff.Application.dll
