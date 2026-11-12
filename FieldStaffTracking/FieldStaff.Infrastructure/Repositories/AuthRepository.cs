@@ -1,4 +1,4 @@
-﻿using FieldStaff.Application.Features.Auth;
+﻿using FieldStaff.Application.Features.Auth.Interfaces;
 using FieldStaff.Domain.Entities;
 using FieldStaff.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;

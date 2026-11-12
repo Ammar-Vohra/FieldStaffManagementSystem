@@ -27,6 +27,10 @@
     <ProjectReference Include="..\FieldStaff.Domain\FieldStaff.Domain.csproj" />
   </ItemGroup>
 
+	<ItemGroup>
+		<FrameworkReference Include="Microsoft.AspNetCore.App" />
+	</ItemGroup>
+
   <ItemGroup>
     <Folder Include="ExternalServices\" />
   </ItemGroup>

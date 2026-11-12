@@ -6,7 +6,7 @@ using System.Security.Claims;
 using System.Text;
 
 
-namespace FieldStaff.Infrastructure.Services.Auth
+namespace FieldStaff.Application.Services
 {
     public class JwtService : IJwtService
     {

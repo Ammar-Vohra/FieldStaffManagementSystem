@@ -1,5 +1,5 @@
-﻿using FieldStaff.Application.DTOs.LoginDto;
-using FieldStaff.Application.Features.Auth;
+﻿using FieldStaff.Application.Features.Auth.DTOs;
+using FieldStaff.Application.Features.Auth.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 namespace FieldStaff.API.Controllers
 {

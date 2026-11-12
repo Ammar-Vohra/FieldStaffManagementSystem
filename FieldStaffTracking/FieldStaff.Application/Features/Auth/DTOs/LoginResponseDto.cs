@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace FieldStaff.Application.DTOs.LoginDto
+namespace FieldStaff.Application.Features.Auth.DTOs
 {
     public class LoginResponseDto
     {

@@ -1,10 +1,10 @@
-﻿using FieldStaff.Application.DTOs.LoginDto;
-using FieldStaff.Application.Features.Auth;
-using FieldStaff.Infrastructure.Persistence;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft;
 using BCrypt.Net;
+using FieldStaff.Application.Features.Auth;
+using FieldStaff.Application.Features.Auth.DTOs;
+using FieldStaff.Application.Features.Auth.Interfaces;
 
-namespace FieldStaff.Infrastructure.Services.Auth
+namespace FieldStaff.Application.Features.Auth
 {
     public class AuthService : IAuthService
     {
