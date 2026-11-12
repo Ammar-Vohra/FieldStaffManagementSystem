@@ -1,0 +1,83 @@
+# ==========================================
+# .NET / Backend Ignores
+# ==========================================
+
+# Build outputs & assemblies
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+[Bb]uild/
+[Dd]ist/
+
+# Visual Studio files
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+.vscode/
+
+# Diagnostic files
+*.pid
+*.seed
+*.pid.lock
+
+# Environment & Secret files (Never commit these!)
+.env
+.env.*
+!.env.example
+secrets.json
+
+# Entity Framework Core local SQLite / local DB files (if applicable)
+*.db
+*.db-shm
+*.db-wal
+
+
+# ==========================================
+# Node.js / Frontend Ignores (React, Vite, Next.js, Vue, etc.)
+# ==========================================
+
+# Dependencies
+node_modules/
+jspm_packages/
+
+# Production build outputs
+build/
+dist/
+.output/
+.nuxt/
+.svelte-kit/
+
+# Optional npm cache directory
+.npm
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory used by tools like istanbul
+coverage/
+*.lcov
+
+# Grunt intermediate storage
+.grunt
+
+# Editor/IDE directories and files
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Framework/Build specific caches
+.parcel-cache
+.eslintcache
+.vite/
+.turbo/
+
+# OS generated files
+Thumbs.db
+ehthumbs.db
+.DS_Store
