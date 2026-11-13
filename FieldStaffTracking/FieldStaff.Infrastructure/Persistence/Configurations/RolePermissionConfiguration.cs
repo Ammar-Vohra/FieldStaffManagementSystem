@@ -5,7 +5,8 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace FieldStaff.Infrastructure.Persistence.Configurations
 {
-    public class RolePermissionConfiguration : IEntityTypeConfiguration<RolePermission>
+    public class RolePermissionConfiguration
+        : IEntityTypeConfiguration<RolePermission>
     {
         public void Configure(EntityTypeBuilder<RolePermission> builder)
         {
@@ -19,7 +20,7 @@ namespace FieldStaff.Infrastructure.Persistence.Configurations
                 .OnDelete(DeleteBehavior.Restrict);
 
             builder.HasOne(rp => rp.Permission)
-                .WithMany()
+                .WithMany(p => p.RolePermissions)
                 .HasForeignKey(rp => rp.PermissionId)
                 .OnDelete(DeleteBehavior.Restrict);
 
@@ -27,7 +28,9 @@ namespace FieldStaff.Infrastructure.Persistence.Configurations
             {
                 rp.RoleId,
                 rp.PermissionId
-            }).IsUnique();
+            })
+                .IsUnique()
+                .HasFilter("[IsDeleted] = 0");
         }
     }
 }

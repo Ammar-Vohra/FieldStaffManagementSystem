@@ -7,11 +7,12 @@
         public string PermissionName { get; set; } = string.Empty;
         public string PermissionCode { get; set; } = string.Empty;
 
-        public int? MenuId { get; set; }
-
         public bool IsActive { get; set; } = true;
         public bool IsDeleted { get; set; } = false;
 
-        public Menu? Menu { get; set; }
+        public ICollection<RolePermission> RolePermissions { get; set; } = new List<RolePermission>();
+        public ICollection<UserPermission> UserPermissions { get; set; } = new List<UserPermission>();
+        public ICollection<MenuPermission> MenuPermissions { get; set; } = new List<MenuPermission>();
     }
+    
 }

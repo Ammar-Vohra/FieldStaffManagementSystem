@@ -1,11 +1,11 @@
-﻿
-using FieldStaff.Domain.Entities;
+﻿using FieldStaff.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace FieldStaff.Infrastructure.Persistence.Configurations
 {
-    public class TaskStatusHistoryConfiguration : IEntityTypeConfiguration<TaskStatusHistory>
+    public class TaskStatusHistoryConfiguration
+        : IEntityTypeConfiguration<TaskStatusHistory>
     {
         public void Configure(EntityTypeBuilder<TaskStatusHistory> builder)
         {
@@ -30,6 +30,9 @@ namespace FieldStaff.Infrastructure.Persistence.Configurations
                 .WithMany(s => s.NewStatusHistories)
                 .HasForeignKey(h => h.NewStatusId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            
+            builder.HasQueryFilter(h => !h.ServiceTask.IsDeleted);
         }
     }
 }

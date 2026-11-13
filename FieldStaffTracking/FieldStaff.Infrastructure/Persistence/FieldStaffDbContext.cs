@@ -31,6 +31,7 @@ namespace FieldStaff.Infrastructure.Persistence
         public DbSet<Permission> Permissions { get; set; }
         public DbSet<RolePermission> RolePermissions { get; set; }
         public DbSet<UserPermission> UserPermissions { get; set; }
+        public DbSet<MenuPermission> MenuPermissions { get; set; }
 
 
         // =========================================
@@ -94,6 +95,12 @@ namespace FieldStaff.Infrastructure.Persistence
 
             modelBuilder.Entity<UserPermission>()
                 .HasQueryFilter(up => !up.IsDeleted);
+
+            modelBuilder.Entity<RolePermission>()
+                .HasQueryFilter(rp => !rp.IsDeleted);
+
+            modelBuilder.Entity<MenuPermission>()
+                .HasQueryFilter(mp => !mp.IsDeleted);
         }
     }
 }

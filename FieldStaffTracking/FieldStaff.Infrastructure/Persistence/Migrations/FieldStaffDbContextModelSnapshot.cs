@@ -134,6 +134,10 @@ namespace FieldStaff.Infrastructure.Persistence.Migrations
                     b.Property<int?>("CreatedBy")
                         .HasColumnType("int");
 
+                    b.Property<string>("Icon")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
@@ -146,9 +150,14 @@ namespace FieldStaff.Infrastructure.Persistence.Migrations
                         .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("MenuPath")
-                        .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
+
+                    b.Property<int?>("ParentMenuId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("int");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
@@ -160,9 +169,58 @@ namespace FieldStaff.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("CreatedBy");
 
+                    b.HasIndex("ParentMenuId");
+
                     b.HasIndex("UpdatedBy");
 
                     b.ToTable("Menus", (string)null);
+                });
+
+            modelBuilder.Entity("FieldStaff.Domain.Entities.MenuPermission", b =>
+                {
+                    b.Property<int>("MenuPermissionId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("MenuPermissionId"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("CreatedBy")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("MenuId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PermissionId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("UpdatedBy")
+                        .HasColumnType("int");
+
+                    b.HasKey("MenuPermissionId");
+
+                    b.HasIndex("CreatedBy");
+
+                    b.HasIndex("PermissionId");
+
+                    b.HasIndex("UpdatedBy");
+
+                    b.HasIndex("MenuId", "PermissionId")
+                        .IsUnique()
+                        .HasFilter("[IsDeleted] = 0");
+
+                    b.ToTable("MenuPermissions", (string)null);
                 });
 
             modelBuilder.Entity("FieldStaff.Domain.Entities.Permission", b =>
@@ -185,9 +243,6 @@ namespace FieldStaff.Infrastructure.Persistence.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
-                    b.Property<int?>("MenuId")
-                        .HasColumnType("int");
-
                     b.Property<string>("PermissionCode")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -208,10 +263,9 @@ namespace FieldStaff.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("CreatedBy");
 
-                    b.HasIndex("MenuId");
-
                     b.HasIndex("PermissionCode")
-                        .IsUnique();
+                        .IsUnique()
+                        .HasFilter("[IsDeleted] = 0");
 
                     b.HasIndex("UpdatedBy");
 
@@ -275,6 +329,12 @@ namespace FieldStaff.Infrastructure.Persistence.Migrations
                     b.Property<int?>("CreatedBy")
                         .HasColumnType("int");
 
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
                     b.Property<int>("PermissionId")
                         .HasColumnType("int");
 
@@ -296,7 +356,8 @@ namespace FieldStaff.Infrastructure.Persistence.Migrations
                     b.HasIndex("UpdatedBy");
 
                     b.HasIndex("RoleId", "PermissionId")
-                        .IsUnique();
+                        .IsUnique()
+                        .HasFilter("[IsDeleted] = 0");
 
                     b.ToTable("RolePermissions", (string)null);
                 });
@@ -476,9 +537,6 @@ namespace FieldStaff.Infrastructure.Persistence.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("TaskStatusHistoryId"));
 
-                    b.Property<int>("ChangedByUserUserId")
-                        .HasColumnType("int");
-
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
@@ -504,9 +562,10 @@ namespace FieldStaff.Infrastructure.Persistence.Migrations
                     b.Property<int?>("UpdatedBy")
                         .HasColumnType("int");
 
-                    b.HasKey("TaskStatusHistoryId");
+                    b.Property<int?>("UserId")
+                        .HasColumnType("int");
 
-                    b.HasIndex("ChangedByUserUserId");
+                    b.HasKey("TaskStatusHistoryId");
 
                     b.HasIndex("CreatedBy");
 
@@ -517,6 +576,8 @@ namespace FieldStaff.Infrastructure.Persistence.Migrations
                     b.HasIndex("ServiceTaskId");
 
                     b.HasIndex("UpdatedBy");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("TaskStatusHistory", (string)null);
                 });
@@ -601,6 +662,9 @@ namespace FieldStaff.Infrastructure.Persistence.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
+                    b.Property<bool>("IsGranted")
+                        .HasColumnType("bit");
+
                     b.Property<int>("PermissionId")
                         .HasColumnType("int");
 
@@ -621,7 +685,9 @@ namespace FieldStaff.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("UpdatedBy");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("UserId", "PermissionId")
+                        .IsUnique()
+                        .HasFilter("[IsDeleted] = 0");
 
                     b.ToTable("UserPermissions", (string)null);
                 });
@@ -659,10 +725,46 @@ namespace FieldStaff.Infrastructure.Persistence.Migrations
                         .HasForeignKey("CreatedBy")
                         .OnDelete(DeleteBehavior.Restrict);
 
+                    b.HasOne("FieldStaff.Domain.Entities.Menu", "ParentMenu")
+                        .WithMany("ChildMenus")
+                        .HasForeignKey("ParentMenuId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("FieldStaff.Domain.Entities.User", null)
                         .WithMany()
                         .HasForeignKey("UpdatedBy")
                         .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("ParentMenu");
+                });
+
+            modelBuilder.Entity("FieldStaff.Domain.Entities.MenuPermission", b =>
+                {
+                    b.HasOne("FieldStaff.Domain.Entities.User", null)
+                        .WithMany()
+                        .HasForeignKey("CreatedBy")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("FieldStaff.Domain.Entities.Menu", "Menu")
+                        .WithMany("MenuPermissions")
+                        .HasForeignKey("MenuId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("FieldStaff.Domain.Entities.Permission", "Permission")
+                        .WithMany("MenuPermissions")
+                        .HasForeignKey("PermissionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("FieldStaff.Domain.Entities.User", null)
+                        .WithMany()
+                        .HasForeignKey("UpdatedBy")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Menu");
+
+                    b.Navigation("Permission");
                 });
 
             modelBuilder.Entity("FieldStaff.Domain.Entities.Permission", b =>
@@ -672,17 +774,10 @@ namespace FieldStaff.Infrastructure.Persistence.Migrations
                         .HasForeignKey("CreatedBy")
                         .OnDelete(DeleteBehavior.Restrict);
 
-                    b.HasOne("FieldStaff.Domain.Entities.Menu", "Menu")
-                        .WithMany("Permissions")
-                        .HasForeignKey("MenuId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
                     b.HasOne("FieldStaff.Domain.Entities.User", null)
                         .WithMany()
                         .HasForeignKey("UpdatedBy")
                         .OnDelete(DeleteBehavior.Restrict);
-
-                    b.Navigation("Menu");
                 });
 
             modelBuilder.Entity("FieldStaff.Domain.Entities.Role", b =>
@@ -706,7 +801,7 @@ namespace FieldStaff.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("FieldStaff.Domain.Entities.Permission", "Permission")
-                        .WithMany()
+                        .WithMany("RolePermissions")
                         .HasForeignKey("PermissionId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
@@ -800,12 +895,6 @@ namespace FieldStaff.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("FieldStaff.Domain.Entities.TaskStatusHistory", b =>
                 {
-                    b.HasOne("FieldStaff.Domain.Entities.User", "ChangedByUser")
-                        .WithMany("TaskStatusHistories")
-                        .HasForeignKey("ChangedByUserUserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("FieldStaff.Domain.Entities.User", null)
                         .WithMany()
                         .HasForeignKey("CreatedBy")
@@ -833,7 +922,9 @@ namespace FieldStaff.Infrastructure.Persistence.Migrations
                         .HasForeignKey("UpdatedBy")
                         .OnDelete(DeleteBehavior.Restrict);
 
-                    b.Navigation("ChangedByUser");
+                    b.HasOne("FieldStaff.Domain.Entities.User", null)
+                        .WithMany("TaskStatusHistories")
+                        .HasForeignKey("UserId");
 
                     b.Navigation("NewStatus");
 
@@ -871,7 +962,7 @@ namespace FieldStaff.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("FieldStaff.Domain.Entities.Permission", "Permission")
-                        .WithMany()
+                        .WithMany("UserPermissions")
                         .HasForeignKey("PermissionId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
@@ -899,7 +990,18 @@ namespace FieldStaff.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("FieldStaff.Domain.Entities.Menu", b =>
                 {
-                    b.Navigation("Permissions");
+                    b.Navigation("ChildMenus");
+
+                    b.Navigation("MenuPermissions");
+                });
+
+            modelBuilder.Entity("FieldStaff.Domain.Entities.Permission", b =>
+                {
+                    b.Navigation("MenuPermissions");
+
+                    b.Navigation("RolePermissions");
+
+                    b.Navigation("UserPermissions");
                 });
 
             modelBuilder.Entity("FieldStaff.Domain.Entities.Role", b =>

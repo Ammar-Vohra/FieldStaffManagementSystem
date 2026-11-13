@@ -1,5 +1,4 @@
-﻿
-using FieldStaff.Domain.Entities;
+﻿using FieldStaff.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -18,13 +17,20 @@ namespace FieldStaff.Infrastructure.Persistence.Configurations
                 .HasMaxLength(100);
 
             builder.Property(m => m.MenuPath)
-                .IsRequired()
+                .IsRequired(false)
                 .HasMaxLength(200);
 
-            builder.HasMany(m => m.Permissions)
-                .WithOne(p => p.Menu)
-                .HasForeignKey(p => p.MenuId)
+            builder.Property(m => m.Icon)
+                .HasMaxLength(100);
+
+            builder.HasOne(m => m.ParentMenu)
+                .WithMany(m => m.ChildMenus)
+                .HasForeignKey(m => m.ParentMenuId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            builder.HasIndex(m => m.ParentMenuId);
+
+            builder.HasQueryFilter(m => !m.IsDeleted);
         }
     }
 }
