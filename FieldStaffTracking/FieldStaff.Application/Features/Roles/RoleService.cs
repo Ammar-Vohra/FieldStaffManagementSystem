@@ -67,16 +67,21 @@ namespace FieldStaff.Application.Features.Roles
             if (role == null)
                 return null;
 
-            bool roleExists = await _roleRepository
-                .RoleExistsByNameAsync(request.RoleName);
-
-            if (roleExists)
+            // Only check duplicates if a new role name was provided.
+            if (!string.IsNullOrWhiteSpace(request.RoleName))
             {
-                throw new InvalidOperationException(
-                    "Another role with this name already exists.");
+                bool roleExists = await _roleRepository
+                    .RoleExistsByNameAsync(request.RoleName, roleId);
+
+                if (roleExists)
+                {
+                    throw new InvalidOperationException(
+                        "Another role with this name already exists.");
+                }
+
+                role.RoleName = request.RoleName.Trim();
             }
 
-            role.RoleName = request.RoleName.Trim();
             role.IsActive = request.IsActive ?? role.IsActive;
 
             role.UpdatedBy = updatedByUserId;
@@ -88,8 +93,8 @@ namespace FieldStaff.Application.Features.Roles
         }
 
         public async Task<bool> DeleteRoleAsync(
-            int roleId,
-            int? deletedByUserId)
+                int roleId,
+                 int? deletedByUserId)
         {
             var role = await _roleRepository.GetRoleByIdAsync(roleId);
 
@@ -97,6 +102,8 @@ namespace FieldStaff.Application.Features.Roles
                 return false;
 
             role.IsDeleted = true;
+            role.IsActive = false;
+
             role.UpdatedBy = deletedByUserId;
             role.UpdatedAt = DateTime.UtcNow;
 

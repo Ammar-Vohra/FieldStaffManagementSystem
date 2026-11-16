@@ -6,14 +6,17 @@ using System.Threading.Tasks;
 
 namespace FieldStaff.Domain.Entities
 {
-    public class MenuPermission : BaseEntity
+    public class RoleMenu : BaseEntity
     {
-        public int MenuPermissionId { get; set; }
+        public int RoleMenuId { get; set; }
+
+        public int RoleId { get; set; }
         public int MenuId { get; set; }
-        public int PermissionId { get; set; }
-        public bool IsActive { get; set; } = true;
+        public bool IsActive { get; set; } = true; 
         public bool IsDeleted { get; set; } = false;
+
+
+        public Role Role { get; set; } = null!;
         public Menu Menu { get; set; } = null!;
-        public Permission Permission { get; set; } = null!;
     }
 }

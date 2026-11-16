@@ -17,12 +17,12 @@ namespace FieldStaff.Application.Features.UserPermissions.Interfaces
 
         Task<UserPermission> UpdateAsync(UserPermission userPermission);
 
-        Task<bool> DeleteAsync(int userPermissionId);
-
         Task<bool> ExistsAsync(int userId, int permissionId);
 
         Task<bool> UserExistsAsync(int userId);
 
         Task<bool> PermissionExistsAsync(int permissionId);
+        Task SaveChangesAsync();
+
     }
 }

@@ -234,6 +234,7 @@ namespace FieldStaff.Application.Features.Users
                 return false;
 
             user.IsDeleted = true;
+            user.IsActive = false;
             user.UpdatedBy = deletedByUserId;
             user.UpdatedAt = DateTime.UtcNow;
 
@@ -250,7 +251,7 @@ namespace FieldStaff.Application.Features.Users
             {
                 UserId = user.UserId,
                 RoleId = user.RoleId,
-                //RoleName = roleName,
+                RoleName = user.Role.RoleName,
                 UserName = user.UserName,
                 Email = user.Email,
                 IsActive = user.IsActive,

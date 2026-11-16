@@ -22,8 +22,6 @@ namespace FieldStaff.Infrastructure.Repositories
         public async Task<UserPermission> CreateAsync(UserPermission userPermission)
         {
             await _context.UserPermissions.AddAsync(userPermission);
-            await _context.SaveChangesAsync();
-
             return userPermission;
         }
 
@@ -50,28 +48,9 @@ namespace FieldStaff.Infrastructure.Repositories
         public async Task<UserPermission> UpdateAsync(UserPermission userPermission)
         {
             _context.UserPermissions.Update(userPermission);
-            await _context.SaveChangesAsync();
-
             return userPermission;
         }
 
-        public async Task<bool> DeleteAsync(int userPermissionId)
-        {
-            var userPermission = await _context.UserPermissions
-                .FirstOrDefaultAsync(up =>
-                    up.UserPermissionId == userPermissionId &&
-                    !up.IsDeleted);
-
-            if (userPermission == null)
-                return false;
-
-            userPermission.IsDeleted = true;
-            userPermission.IsActive = false;
-
-            await _context.SaveChangesAsync();
-
-            return true;
-        }
 
         public async Task<bool> ExistsAsync(int userId, int permissionId)
         {
@@ -96,6 +75,11 @@ namespace FieldStaff.Infrastructure.Repositories
                 .AnyAsync(p =>
                     p.PermissionId == permissionId &&
                     !p.IsDeleted);
+        }
+
+        public async Task SaveChangesAsync()
+        {
+            await _context.SaveChangesAsync();
         }
     }
 }

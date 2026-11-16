@@ -1,7 +1,7 @@
 ﻿
 using Microsoft.AspNetCore.Mvc;
 
-namespace SalesQuotationManagement.API.Middleware
+namespace FieldStaff.API.Middleware
 {
     public class GlobalExceptionMiddleware
     {
@@ -28,14 +28,17 @@ namespace SalesQuotationManagement.API.Middleware
                 {
                     _logger.LogError(
                         ex,
-                        "Exception occurred after response started.");
+                        "Exception occurred after response started. TraceId: {TraceId}",
+                        context.TraceIdentifier);
 
                     throw;
                 }
 
                 _logger.LogError(
                     ex,
-                    "An exception occurred. TraceId: {TraceId}",
+                    "Unhandled exception occurred. Method: {Method}, Path: {Path}, TraceId: {TraceId}",
+                    context.Request.Method,
+                    context.Request.Path,
                     context.TraceIdentifier);
 
                 context.Response.Clear();
@@ -68,6 +71,7 @@ namespace SalesQuotationManagement.API.Middleware
                 };
 
                 context.Response.StatusCode = statusCode;
+                context.Response.ContentType = "application/problem+json";
 
                 var problem = new ProblemDetails
                 {
@@ -80,7 +84,9 @@ namespace SalesQuotationManagement.API.Middleware
                 problem.Extensions["traceId"] =
                     context.TraceIdentifier;
 
-                await context.Response.WriteAsJsonAsync(problem);
+                await context.Response.WriteAsJsonAsync(
+                    problem,
+                    cancellationToken: context.RequestAborted);
             }
         }
     }

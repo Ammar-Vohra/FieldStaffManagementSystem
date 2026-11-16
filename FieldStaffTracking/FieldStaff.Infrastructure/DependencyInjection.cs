@@ -12,10 +12,10 @@ using FieldStaff.Application.Features.Menus;
 using FieldStaff.Application.Features.Menus.Interfaces;
 using FieldStaff.Application.Features.Permissions;
 using FieldStaff.Application.Features.Permissions.Interfaces;
-using FieldStaff.Application.Features.MenuPermissions;
-using FieldStaff.Application.Features.MenuPermissions.Interfaces;
 using FieldStaff.Application.Features.RolePermissions;
 using FieldStaff.Application.Features.RolePermissions.Interfaces;
+using FieldStaff.Application.Features.RoleMenus;
+using FieldStaff.Application.Features.RoleMenus.Interfaces;
 using FieldStaff.Application.Services;
 using FieldStaff.Application.Features;
 using FieldStaff.Infrastructure.Persistence;
@@ -23,6 +23,7 @@ using FieldStaff.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using FieldStaff.Infrastructure.Persistence.Repositories;
 
 namespace FieldStaff.Infrastructure
 {
@@ -51,8 +52,8 @@ namespace FieldStaff.Infrastructure
             services.AddScoped<ITaskStatusRepository, TaskStatusRepository>();
             services.AddScoped<IMenuRepository, MenuRepository>();
             services.AddScoped<IPermissionRepository, PermissionRepository>();
-            services.AddScoped<IMenuPermissionRepository, MenuPermissionRepository>();
             services.AddScoped<IRolePermissionRepository, RolePermissionRepository>();
+            services.AddScoped<IRoleMenuRepository, RoleMenuRepository>();
 
 
             services.AddScoped<IAuthService, AuthService>();
@@ -62,8 +63,9 @@ namespace FieldStaff.Infrastructure
             services.AddScoped<ITaskStatusService, TaskStatusService>();
             services.AddScoped<IMenuService, MenuService>();
             services.AddScoped<IPermissionService, PermissionService>();
-            services.AddScoped<IMenuPermissionService, MenuPermissionService>();
             services.AddScoped<IRolePermissionService, RolePermissionService>();
+            services.AddScoped<IRoleMenuService, RoleMenuService>();
+
 
             services.AddScoped<IJwtService, JwtService>();
 

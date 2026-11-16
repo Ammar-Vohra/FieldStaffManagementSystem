@@ -1,4 +1,5 @@
 
+using FieldStaff.API.Middleware;
 using FieldStaff.Application;
 using FieldStaff.Infrastructure;
 using FieldStaff.Infrastructure.Persistence;
@@ -17,6 +18,7 @@ builder.Services.AddControllers();
 builder.Services.AddInfrastructure(builder.Configuration);
 
 builder.Services.AddHttpContextAccessor();
+
 
 
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
@@ -111,6 +113,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseMiddleware<GlobalExceptionMiddleware>();
 
 app.UseHttpsRedirection();
 

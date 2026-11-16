@@ -1,4 +1,5 @@
-﻿namespace FieldStaff.Domain.Entities
+﻿
+namespace FieldStaff.Domain.Entities
 {
     public class Role : BaseEntity
     {
@@ -9,10 +10,16 @@
         public bool IsActive { get; set; } = true;
         public bool IsDeleted { get; set; } = false;
 
+      
         public ICollection<User> Users { get; set; }
             = new List<User>();
 
+      
         public ICollection<RolePermission> RolePermissions { get; set; }
             = new List<RolePermission>();
+
+        
+        public ICollection<RoleMenu> RoleMenus { get; set; }
+            = new List<RoleMenu>();
     }
 }

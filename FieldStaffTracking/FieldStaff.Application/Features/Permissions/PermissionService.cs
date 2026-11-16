@@ -110,6 +110,7 @@ namespace FieldStaff.Application.Features.Permissions
             if (permission == null)
                 return null;
 
+            permission.IsActive = false;
             permission.IsDeleted = true;
             permission.UpdatedBy = deletedByUserId;
             permission.UpdatedAt = DateTime.UtcNow;

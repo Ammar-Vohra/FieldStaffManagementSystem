@@ -152,6 +152,7 @@ namespace FieldStaff.Application.Features.RolePermissions
                 return false;
 
             assignment.IsDeleted = true;
+            assignment.IsActive = false;
             assignment.UpdatedBy = deletedByUserId;
             assignment.UpdatedAt = DateTime.UtcNow;
 

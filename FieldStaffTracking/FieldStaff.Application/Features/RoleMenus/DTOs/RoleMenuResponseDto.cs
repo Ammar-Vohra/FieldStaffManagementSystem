@@ -1,0 +1,18 @@
+﻿namespace FieldStaff.Application.Features.RoleMenus.DTOs
+{
+    public class RoleMenuResponseDto
+    {
+        public int RoleMenuId { get; set; }
+
+        public int RoleId { get; set; }
+        public string RoleName { get; set; } = string.Empty;
+
+        public int MenuId { get; set; }
+        public string MenuName { get; set; } = string.Empty;
+        public string? MenuPath { get; set; }
+
+        public bool IsActive { get; set; }
+
+        public List<RoleMenuResponseDto> Children { get; set; } = new();
+    }
+}

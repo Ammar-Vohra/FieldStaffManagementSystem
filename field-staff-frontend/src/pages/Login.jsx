@@ -1,8 +1,10 @@
 
 import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 function Login() {
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -30,6 +32,9 @@ function Login() {
     //   email: response.email,
       roleId: response.roleId,
     });
+
+    navigate("/dashboard", { replace: true });
+
 
   } catch (err) {
     console.error("Login failed:", err);

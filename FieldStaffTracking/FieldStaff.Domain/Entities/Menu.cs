@@ -1,8 +1,10 @@
-﻿namespace FieldStaff.Domain.Entities
+﻿
+namespace FieldStaff.Domain.Entities
 {
     public class Menu : BaseEntity
     {
         public int MenuId { get; set; }
+
         public int? ParentMenuId { get; set; }
 
         public string MenuName { get; set; } = string.Empty;
@@ -13,9 +15,13 @@
 
         public bool IsActive { get; set; } = true;
         public bool IsDeleted { get; set; } = false;
+
         public Menu? ParentMenu { get; set; }
 
-        public ICollection<MenuPermission> MenuPermissions { get; set; } = new List<MenuPermission>();
-        public ICollection<Menu> ChildMenus { get; set; } = new List<Menu>();
+        public ICollection<Menu> ChildMenus { get; set; }
+            = new List<Menu>();
+
+        public ICollection<RoleMenu> RoleMenus { get; set; }
+            = new List<RoleMenu>();
     }
 }

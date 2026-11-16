@@ -51,7 +51,7 @@ namespace FieldStaff.API.Controllers
         }
 
 
-        // GET USERS WITH SEARCH, FILTER, SORT AND PAGINATION
+       
         [HttpGet]
         public async Task<IActionResult> GetUsers(
             [FromQuery] UserQueryParameters parameters)
