@@ -17,9 +17,14 @@ namespace FieldStaff.Application.Features.UserPermissions.Interfaces
 
         Task<UserPermission> UpdateAsync(UserPermission userPermission);
 
-        Task<bool> ExistsAsync(int userId, int permissionId);
+        Task<bool> ExistsAsync(int userId, int permissionId, int? excludedUserPermissionId = null);
 
         Task<bool> UserExistsAsync(int userId);
+
+        Task<List<UserPermission>> GetByUserIdAsync(int userId);
+
+        Task<List<UserPermission>> GetByUserIdIncludingDeletedAsync(int userId);
+
 
         Task<bool> PermissionExistsAsync(int permissionId);
         Task SaveChangesAsync();

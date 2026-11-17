@@ -18,7 +18,6 @@ function MenuItem({ menu }) {
             className="w-full flex items-center justify-between px-4 py-3 rounded-lg text-slate-300 hover:bg-slate-700 hover:text-white transition"
           >
             <span>{menu.menuName}</span>
-
             <span>{expanded ? "−" : "+"}</span>
           </button>
 
@@ -50,10 +49,10 @@ function MenuItem({ menu }) {
 
 function Sidebar({ menus, roleName, userName, onLogout }) {
   return (
-    <aside className="w-64 min-h-screen bg-slate-900 text-white flex flex-col">
+    <aside className="fixed top-0 left-0 h-screen w-64 bg-slate-900 text-white flex flex-col">
 
       {/* Application Title */}
-      <div className="p-5 border-b border-slate-700">
+      <div className="shrink-0 p-5 border-b border-slate-700">
         <h2 className="text-lg font-bold">
           Field Staff Management
         </h2>
@@ -64,20 +63,20 @@ function Sidebar({ menus, roleName, userName, onLogout }) {
       </div>
 
       {/* User Information */}
-      <div className="p-4 border-b border-slate-700">
+      <div className="shrink-0 p-4 border-b border-slate-700">
         <p className="text-sm text-slate-400">Logged in as</p>
         <p className="font-medium">{userName}</p>
       </div>
 
-      {/* Dynamic Menus */}
-      <nav className="flex-1 p-3 space-y-1">
+      {/* Dynamic Menus - Independent Scrolling */}
+      <nav className="flex-1 min-h-0 overflow-y-auto scrollbar-hide p-3 space-y-1">
         {menus.map((menu) => (
           <MenuItem key={menu.menuId} menu={menu} />
         ))}
       </nav>
 
       {/* Logout */}
-      <div className="p-4 border-t border-slate-700">
+      <div className="shrink-0 p-4 border-t border-slate-700">
         <button
           onClick={onLogout}
           className="w-full text-left px-4 py-3 rounded-lg text-red-400 hover:bg-slate-700 transition"

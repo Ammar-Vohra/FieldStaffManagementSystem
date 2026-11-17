@@ -10,6 +10,6 @@ namespace FieldStaff.Application.Features.Menus.DTOs
         public string? MenuPath { get; set; }
         public string? Icon { get; set; }
         public int SortOrder { get; set; }
-        public bool IsAcitve { get; set; }
+        public bool IsActive { get; set; }
     }
 }

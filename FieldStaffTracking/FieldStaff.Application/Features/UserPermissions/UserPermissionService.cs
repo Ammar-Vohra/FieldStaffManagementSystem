@@ -1,4 +1,5 @@
-﻿using FieldStaff.Application.Features.UserPermissions.DTOs;
+﻿
+using FieldStaff.Application.Features.UserPermissions.DTOs;
 using FieldStaff.Application.Features.UserPermissions.Interfaces;
 using FieldStaff.Domain.Entities;
 
@@ -26,9 +27,13 @@ namespace FieldStaff.Application.Features.UserPermissions.Services
                 throw new InvalidOperationException("Permission does not exist.");
 
             // Check duplicate assignment
-            if (await _repository.ExistsAsync(request.UserId, request.PermissionId))
+            if (await _repository.ExistsAsync(
+                request.UserId,
+                request.PermissionId))
+            {
                 throw new InvalidOperationException(
                     "This permission is already assigned to the user.");
+            }
 
             var userPermission = new UserPermission
             {
@@ -46,21 +51,142 @@ namespace FieldStaff.Application.Features.UserPermissions.Services
 
             var created = await _repository.CreateAsync(userPermission);
 
-            var result = await _repository.GetByIdAsync(created.UserPermissionId);
+            await _repository.SaveChangesAsync();
 
-            return MapToResponseDto(result!);
+            var result = await _repository.GetByIdAsync(
+                created.UserPermissionId);
+
+            if (result == null)
+                throw new InvalidOperationException(
+                    "Failed to retrieve the created user permission.");
+
+            return MapToResponseDto(result);
         }
 
         public async Task<UserPermissionResponseDto?> GetByIdAsync(
             int userPermissionId)
         {
-            var userPermission = await _repository.GetByIdAsync(userPermissionId);
+            var userPermission = await _repository.GetByIdAsync(
+                userPermissionId);
 
             if (userPermission == null)
                 return null;
 
             return MapToResponseDto(userPermission);
         }
+
+
+        public async Task<List<UserPermissionResponseDto>> GetByUserIdAsync(
+            int userId)
+        {
+            if (!await _repository.UserExistsAsync(userId))
+                throw new InvalidOperationException("User does not exist.");
+
+            var permissions = await _repository.GetByUserIdAsync(userId);
+
+            return permissions
+                .Where(up => up.IsActive)
+                .Select(MapToResponseDto)
+                .ToList();
+        }
+
+        public async Task<List<UserPermissionResponseDto>> AssignBulkAsync(
+            int userId,
+            BulkUserPermissionRequestDto request,
+            int? updatedByUserId)
+        {
+            // Validate user
+            if (!await _repository.UserExistsAsync(userId))
+                throw new InvalidOperationException("User does not exist.");
+
+            // Prevent duplicate permission IDs
+            var permissionIds = request.Permissions
+                .Select(p => p.PermissionId)
+                .ToList();
+
+            if (permissionIds.Distinct().Count() != permissionIds.Count)
+                throw new InvalidOperationException(
+                    "Duplicate permission IDs are not allowed.");
+
+            // Validate all permissions before modifying anything
+            foreach (var permissionId in permissionIds)
+            {
+                if (!await _repository.PermissionExistsAsync(permissionId))
+                    throw new InvalidOperationException(
+                        $"Permission ID {permissionId} does not exist.");
+            }
+
+            // Fetch existing assignments, including deleted ones
+            var existingPermissions =
+                await _repository.GetByUserIdIncludingDeletedAsync(userId);
+
+            var now = DateTime.UtcNow;
+
+            // Soft-delete assignments that are no longer selected
+            foreach (var existing in existingPermissions)
+            {
+                if (!permissionIds.Contains(existing.PermissionId) &&
+                    !existing.IsDeleted)
+                {
+                    existing.IsDeleted = true;
+                    existing.IsActive = false;
+                    existing.UpdatedBy = updatedByUserId;
+                    existing.UpdatedAt = now;
+
+                    await _repository.UpdateAsync(existing);
+                }
+            }
+
+            // Insert, update or reactivate selected permissions
+            foreach (var selected in request.Permissions)
+            {
+                var existing = existingPermissions
+                    .Where(up => up.PermissionId == selected.PermissionId)
+                    .OrderByDescending(up => up.UserPermissionId)
+                    .FirstOrDefault();
+
+                if (existing == null)
+                {
+                    var newPermission = new UserPermission
+                    {
+                        UserId = userId,
+                        PermissionId = selected.PermissionId,
+                        IsGranted = true,
+                        ExpiresAt = selected.ExpiresAt,
+                        IsActive = true,
+                        IsDeleted = false,
+                        CreatedBy = updatedByUserId,
+                        CreatedAt = now
+                    };
+
+                    await _repository.CreateAsync(newPermission);
+                }
+                else
+                {
+                    existing.IsGranted = true;
+                    existing.ExpiresAt = selected.ExpiresAt;
+                    existing.IsActive = true;
+                    existing.IsDeleted = false;
+                    existing.UpdatedBy = updatedByUserId;
+                    existing.UpdatedAt = now;
+
+                    await _repository.UpdateAsync(existing);
+                }
+            }
+
+            // One SaveChanges call: EF Core batches these changes
+            await _repository.SaveChangesAsync();
+
+            // Return updated assignments
+            var updatedPermissions =
+                await _repository.GetByUserIdAsync(userId);
+
+            return updatedPermissions
+                .Where(up => up.IsActive && !up.IsDeleted)
+                .Select(MapToResponseDto)
+                .ToList();
+        }
+
 
         public async Task<List<UserPermissionResponseDto>> GetAllAsync()
         {
@@ -76,10 +202,12 @@ namespace FieldStaff.Application.Features.UserPermissions.Services
             UpdateUserPermissionRequestDto request,
             int? updatedByUserId)
         {
-            var userPermission = await _repository.GetByIdAsync(userPermissionId);
+            var userPermission = await _repository.GetByIdAsync(
+                userPermissionId);
 
             if (userPermission == null)
-                throw new KeyNotFoundException("User permission not found.");
+                throw new KeyNotFoundException(
+                    "User permission not found.");
 
             // Validate User
             if (!await _repository.UserExistsAsync(request.UserId))
@@ -90,16 +218,14 @@ namespace FieldStaff.Application.Features.UserPermissions.Services
                 throw new InvalidOperationException("Permission does not exist.");
 
             // Check duplicate assignment, excluding current record
-            var allUserPermissions = await _repository.GetAllAsync();
-
-            bool duplicateExists = allUserPermissions.Any(up =>
-                up.UserPermissionId != userPermissionId &&
-                up.UserId == request.UserId &&
-                up.PermissionId == request.PermissionId);
-
-            if (duplicateExists)
+            if (await _repository.ExistsAsync(
+                request.UserId,
+                request.PermissionId,
+                userPermissionId))
+            {
                 throw new InvalidOperationException(
                     "This permission is already assigned to the user.");
+            }
 
             userPermission.UserId = request.UserId;
             userPermission.PermissionId = request.PermissionId;
@@ -111,16 +237,25 @@ namespace FieldStaff.Application.Features.UserPermissions.Services
 
             await _repository.UpdateAsync(userPermission);
 
-            var updated = await _repository.GetByIdAsync(userPermissionId);
+            // Save changes to database
+            await _repository.SaveChangesAsync();
 
-            return MapToResponseDto(updated!);
+            var updated = await _repository.GetByIdAsync(
+                userPermissionId);
+
+            if (updated == null)
+                throw new InvalidOperationException(
+                    "Failed to retrieve the updated user permission.");
+
+            return MapToResponseDto(updated);
         }
 
         public async Task<bool> DeleteAsync(
             int userPermissionId,
             int? deletedByUserId)
         {
-            var userPermission = await _repository.GetByIdAsync(userPermissionId);
+            var userPermission = await _repository.GetByIdAsync(
+                userPermissionId);
 
             if (userPermission == null)
                 return false;
@@ -132,6 +267,9 @@ namespace FieldStaff.Application.Features.UserPermissions.Services
             userPermission.UpdatedAt = DateTime.UtcNow;
 
             await _repository.UpdateAsync(userPermission);
+
+            // Save changes to database
+            await _repository.SaveChangesAsync();
 
             return true;
         }

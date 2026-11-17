@@ -15,6 +15,8 @@ import ProtectedRoute from "./components/common/ProtectedRoute";
 import MainLayout from "./components/layout/MainLayout";
 import Roles from "./pages/Role";
 import Users from "./pages/User";
+import UserPermissions from "./pages/UserPermission";
+import Menu from "./pages/Menu";
 
 function App() {
   return (
@@ -36,6 +38,10 @@ function App() {
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/roles" element={<Roles />} />
             <Route path="/users" element={<Users />} />
+            <Route path="/user-permissions" element={<UserPermissions />} />
+            <Route path="/menus" element={<Menu />} />
+
+
 
 
 

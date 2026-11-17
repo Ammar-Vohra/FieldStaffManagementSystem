@@ -15,6 +15,14 @@ namespace FieldStaff.Application.Features.UserPermissions.Interfaces
 
         Task<UserPermissionResponseDto?> GetByIdAsync(int userPermissionId);
 
+        Task<List<UserPermissionResponseDto>> GetByUserIdAsync(int userId);
+
+        Task<List<UserPermissionResponseDto>> AssignBulkAsync(
+            int userId,
+            BulkUserPermissionRequestDto request,
+            int? updatedByUserId);
+
+
         Task<List<UserPermissionResponseDto>> GetAllAsync();
 
         Task<UserPermissionResponseDto> UpdateAsync(

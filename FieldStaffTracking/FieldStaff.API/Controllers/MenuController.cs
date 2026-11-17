@@ -1,6 +1,7 @@
 ﻿
 using FieldStaff.Application.Features.Menus.DTOs;
 using FieldStaff.Application.Features.Menus.Interfaces;
+using FieldStaff.Application.Features.Users.DTOs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -20,13 +21,34 @@ namespace FieldStaff.API.Controllers
         }
 
         // GET: api/menus
-        [HttpGet]
+        [HttpGet("all")]
         public async Task<IActionResult> GetAll()
         {
             var menus = await _menuService.GetAllAsync();
 
             return Ok(menus);
         }
+
+        [HttpGet]
+        public async Task<IActionResult> GetMenus(
+                [FromQuery] MenuQueryParameters parameters)
+        {
+            try
+            {
+                var result = await _menuService.GetPagedMenusAsync(parameters);
+
+                return Ok(result);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new
+                {
+                    message = ex.Message
+                });
+            }
+        }
+
+
 
         // GET: api/menus/5
         [HttpGet("{menuId:int}")]

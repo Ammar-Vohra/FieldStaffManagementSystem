@@ -70,8 +70,9 @@ function MainLayout() {
   }
 
   return (
-    <div className="flex min-h-screen bg-slate-100">
+    <div className="min-h-screen bg-slate-100">
 
+      {/* Fixed Sidebar */}
       <Sidebar
         menus={menus}
         roleName={roleName}
@@ -79,7 +80,8 @@ function MainLayout() {
         onLogout={handleLogout}
       />
 
-      <main className="flex-1 p-6">
+      {/* Independently Scrollable Main Content */}
+      <main className="ml-64 min-h-screen p-6">
         <Outlet context={{ roleName }} />
       </main>
 

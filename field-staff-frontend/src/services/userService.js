@@ -41,7 +41,7 @@ const deleteUser = async (id) => {
     await api.delete(`/User/${id}`);
 };
 
-const roleService = {
+const userService = {
     getAllUsers, 
     getUserById,
     getPaginatedUsers, 
@@ -50,4 +50,4 @@ const roleService = {
     deleteUser,
 };
 
-export default roleService;
+export default userService;

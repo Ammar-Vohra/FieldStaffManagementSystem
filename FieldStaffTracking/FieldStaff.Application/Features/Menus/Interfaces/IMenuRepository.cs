@@ -1,9 +1,11 @@
-﻿using System;
+﻿using FieldStaff.Application.Features.Menus.DTOs;
+using FieldStaff.Application.Features.Users.DTOs;
+using FieldStaff.Domain.Entities;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using FieldStaff.Domain.Entities;
 
 namespace FieldStaff.Application.Features.Menus.Interfaces
 {
@@ -11,6 +13,8 @@ namespace FieldStaff.Application.Features.Menus.Interfaces
     {
         Task<Menu?> GetByIdAsync(int menuId);
         Task<List<Menu>> GetAllAsync();
+        Task<(List<Menu> Menus, int TotalRecords)> GetPagedAsync(MenuQueryParameters parameters);
+
         Task<List<Menu>> GetChildMenusAsync(int parentMenuId);
         Task<bool> HasChildMenusAsync(int menuId);
         Task<bool> ExistsAsync(int menuId);

@@ -1,12 +1,8 @@
-﻿using FieldStaff.Application.Features.UserPermissions.Interfaces;
+﻿
+using FieldStaff.Application.Features.UserPermissions.Interfaces;
 using FieldStaff.Domain.Entities;
 using FieldStaff.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FieldStaff.Infrastructure.Repositories
 {
@@ -19,13 +15,35 @@ namespace FieldStaff.Infrastructure.Repositories
             _context = context;
         }
 
-        public async Task<UserPermission> CreateAsync(UserPermission userPermission)
+        public async Task<UserPermission> CreateAsync(
+            UserPermission userPermission)
         {
             await _context.UserPermissions.AddAsync(userPermission);
             return userPermission;
         }
 
-        public async Task<UserPermission?> GetByIdAsync(int userPermissionId)
+        public async Task<List<UserPermission>> GetByUserIdAsync(int userId)
+        {
+            return await _context.UserPermissions
+                .Include(up => up.User)
+                .Include(up => up.Permission)
+                .Where(up => up.UserId == userId && !up.IsDeleted)
+                .OrderBy(up => up.Permission.PermissionName)
+                .ToListAsync();
+        }
+
+        public async Task<List<UserPermission>> GetByUserIdIncludingDeletedAsync(
+            int userId)
+        {
+            return await _context.UserPermissions
+                .Include(up => up.User)
+                .Include(up => up.Permission)
+                .Where(up => up.UserId == userId)
+                .ToListAsync();
+        }
+
+        public async Task<UserPermission?> GetByIdAsync(
+            int userPermissionId)
         {
             return await _context.UserPermissions
                 .Include(up => up.User)
@@ -45,20 +63,25 @@ namespace FieldStaff.Infrastructure.Repositories
                 .ToListAsync();
         }
 
-        public async Task<UserPermission> UpdateAsync(UserPermission userPermission)
+        public async Task<UserPermission> UpdateAsync(
+            UserPermission userPermission)
         {
             _context.UserPermissions.Update(userPermission);
             return userPermission;
         }
 
-
-        public async Task<bool> ExistsAsync(int userId, int permissionId)
+        public async Task<bool> ExistsAsync(
+            int userId,
+            int permissionId,
+            int? excludedUserPermissionId = null)
         {
             return await _context.UserPermissions
                 .AnyAsync(up =>
                     up.UserId == userId &&
                     up.PermissionId == permissionId &&
-                    !up.IsDeleted);
+                    !up.IsDeleted &&
+                    (!excludedUserPermissionId.HasValue ||
+                     up.UserPermissionId != excludedUserPermissionId.Value));
         }
 
         public async Task<bool> UserExistsAsync(int userId)

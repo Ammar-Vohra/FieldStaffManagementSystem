@@ -1,6 +1,8 @@
-﻿using FieldStaff.Application.Features.Menus.Interfaces;
+﻿
 using FieldStaff.Application.Features.Menus.DTOs;
-using FieldStaff.Domain.Entities; 
+using FieldStaff.Application.Features.Menus.Interfaces;
+using FieldStaff.Application.Features.Common.DTOs;
+using FieldStaff.Domain.Entities;
 
 namespace FieldStaff.Application.Features.Menus
 {
@@ -13,7 +15,9 @@ namespace FieldStaff.Application.Features.Menus
             _repository = repository;
         }
 
-        public async Task<MenuResponseDto> CreateAsync(CreateMenuRequestDto request, int? createdByUserId)
+        public async Task<MenuResponseDto> CreateAsync(
+            CreateMenuRequestDto request,
+            int? createdByUserId)
         {
             await ValidateMenuAsync(request.ParentMenuId, request.MenuPath);
 
@@ -24,7 +28,7 @@ namespace FieldStaff.Application.Features.Menus
                 MenuPath = NormalizePath(request.MenuPath),
                 Icon = request.Icon,
                 SortOrder = request.SortOrder,
-                IsActive = request.isActive,
+                IsActive = request.IsActive,
                 IsDeleted = false,
                 CreatedBy = createdByUserId,
                 CreatedAt = DateTime.UtcNow
@@ -37,12 +41,12 @@ namespace FieldStaff.Application.Features.Menus
 
             if (menu.ParentMenuId.HasValue)
             {
-                parentMenu = await _repository.GetByIdAsync(menu.ParentMenuId.Value);
+                parentMenu = await _repository.GetByIdAsync(
+                    menu.ParentMenuId.Value);
             }
 
             return MapToResponse(menu, parentMenu);
         }
-
 
         public async Task<MenuResponseDto?> GetByIdAsync(int menuId)
         {
@@ -63,6 +67,83 @@ namespace FieldStaff.Application.Features.Menus
                 .ToList();
         }
 
+        public async Task<PaginatedResponse<MenuResponseDto>> GetPagedMenusAsync(
+            MenuQueryParameters parameters)
+        {
+
+            if (parameters.PageNumber < 1)
+            {
+                throw new InvalidOperationException(
+                    "Page number must be greater than zero.");
+            }
+
+            if (parameters.PageSize < 1 || parameters.PageSize > 100)
+            {
+                throw new InvalidOperationException(
+                    "Page size must be between 1 and 100.");
+            }
+
+           
+            var allowedSortColumns = new[]
+            {
+                "menuname",
+                "menupath",
+                "parentmenuname",
+                "sortorder",
+                "isactive",
+                "createdat"
+            };
+
+            if (!allowedSortColumns.Contains(
+                parameters.SortBy,
+                StringComparer.OrdinalIgnoreCase))
+            {
+                throw new InvalidOperationException(
+                    "Invalid sorting column.");
+            }
+
+      
+            if (!parameters.SortDirection.Equals(
+                "asc",
+                StringComparison.OrdinalIgnoreCase) &&
+                !parameters.SortDirection.Equals(
+                "desc",
+                StringComparison.OrdinalIgnoreCase))
+            {
+                throw new InvalidOperationException(
+                    "Sort direction must be either 'asc' or 'desc'.");
+            }
+
+         
+            parameters.SortBy = parameters.SortBy.ToLowerInvariant();
+            parameters.SortDirection = parameters.SortDirection.ToLowerInvariant();
+
+           
+            var (menus, totalRecords) =
+                await _repository.GetPagedAsync(parameters);
+
+            
+            int totalPages = (int)Math.Ceiling(
+                (double)totalRecords / parameters.PageSize);
+
+            
+            var menuDtos = menus.Select(menu =>
+                MapToResponse(menu, menu.ParentMenu)
+            ).ToList();
+
+         
+            return new PaginatedResponse<MenuResponseDto>
+            {
+                Data = menuDtos,
+                PageNumber = parameters.PageNumber,
+                PageSize = parameters.PageSize,
+                TotalRecords = totalRecords,
+                TotalPages = totalPages,
+                HasPreviousPage = parameters.PageNumber > 1,
+                HasNextPage = parameters.PageNumber < totalPages
+            };
+        }
+
         public async Task<MenuResponseDto?> UpdateAsync(
             int menuId,
             UpdateMenuRequestDto request,
@@ -75,8 +156,7 @@ namespace FieldStaff.Application.Features.Menus
 
             bool hasChildren = await _repository.HasChildMenusAsync(menuId);
 
-         
-           if (hasChildren &&
+            if (hasChildren &&
                 (request.ParentMenuId.HasValue ||
                  !string.IsNullOrWhiteSpace(request.MenuPath)))
             {
@@ -102,7 +182,8 @@ namespace FieldStaff.Application.Features.Menus
 
             if (menu.ParentMenuId.HasValue)
             {
-                parentMenu = await _repository.GetByIdAsync(menu.ParentMenuId.Value);
+                parentMenu = await _repository.GetByIdAsync(
+                    menu.ParentMenuId.Value);
             }
 
             return MapToResponse(menu, parentMenu);
@@ -142,7 +223,8 @@ namespace FieldStaff.Application.Features.Menus
         {
             if (parentMenuId.HasValue)
             {
-                var parentMenu = await _repository.GetByIdAsync(parentMenuId.Value);
+                var parentMenu = await _repository.GetByIdAsync(
+                    parentMenuId.Value);
 
                 if (parentMenu == null)
                 {
@@ -170,8 +252,6 @@ namespace FieldStaff.Application.Features.Menus
                         "Child menus must have a valid menu path.");
                 }
             }
-
-
         }
 
         private static string? NormalizePath(string? menuPath)
@@ -181,7 +261,9 @@ namespace FieldStaff.Application.Features.Menus
                 : menuPath.Trim();
         }
 
-        private static MenuResponseDto MapToResponse(Menu menu, Menu? parentMenu)
+        private static MenuResponseDto MapToResponse(
+            Menu menu,
+            Menu? parentMenu)
         {
             return new MenuResponseDto
             {
@@ -192,9 +274,8 @@ namespace FieldStaff.Application.Features.Menus
                 MenuPath = menu.MenuPath,
                 Icon = menu.Icon,
                 SortOrder = menu.SortOrder,
-                IsAcitve = menu.IsActive
+                IsActive = menu.IsActive
             };
         }
-
     }
 }

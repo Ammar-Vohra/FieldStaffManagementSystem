@@ -1,4 +1,5 @@
 ﻿
+using FieldStaff.API.Authorization.Attributes;
 using FieldStaff.Application.Features.Users.DTOs;
 using FieldStaff.Application.Features.Users.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -41,7 +42,9 @@ namespace FieldStaff.API.Controllers
                 return BadRequest(new { message = ex.Message });
             }
         }
-
+        
+        
+        [HasPermission("USER_VIEW")]
         [HttpGet("all")]
         public async Task<IActionResult> GetAllUsers()
         {

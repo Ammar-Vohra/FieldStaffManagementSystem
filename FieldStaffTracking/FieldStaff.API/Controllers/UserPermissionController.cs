@@ -1,6 +1,7 @@
-﻿using FieldStaff.Application.Features.UserPermissions.DTOs;
+﻿
+using FieldStaff.API.Authorization.Attributes;
+using FieldStaff.Application.Features.UserPermissions.DTOs;
 using FieldStaff.Application.Features.UserPermissions.Interfaces;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 
@@ -8,7 +9,7 @@ namespace FieldStaff.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
+    [HasPermission("USER_PERMISSION_MANAGE")]
     public class UserPermissionsController : ControllerBase
     {
         private readonly IUserPermissionService _service;
@@ -21,7 +22,8 @@ namespace FieldStaff.API.Controllers
         // Get current logged-in User ID from JWT
         private int? GetCurrentUserId()
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var userId = User.FindFirstValue(
+                ClaimTypes.NameIdentifier);
 
             if (int.TryParse(userId, out int id))
                 return id;
@@ -58,7 +60,10 @@ namespace FieldStaff.API.Controllers
             var result = await _service.GetByIdAsync(id);
 
             if (result == null)
-                return NotFound(new { message = "User permission not found." });
+                return NotFound(new
+                {
+                    message = "User permission not found."
+                });
 
             return Ok(result);
         }
@@ -70,6 +75,43 @@ namespace FieldStaff.API.Controllers
             var result = await _service.GetAllAsync();
 
             return Ok(result);
+        }
+
+        // GET: api/UserPermissions/user/2
+        [HttpGet("user/{userId:int}")]
+        public async Task<IActionResult> GetByUserId(int userId)
+        {
+            try
+            {
+                var result = await _service.GetByUserIdAsync(userId);
+
+                return Ok(result);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+        }
+
+        // PUT: api/UserPermissions/user/2
+        [HttpPut("user/{userId:int}")]
+        public async Task<IActionResult> AssignBulk(
+            int userId,
+            [FromBody] BulkUserPermissionRequestDto request)
+        {
+            try
+            {
+                var result = await _service.AssignBulkAsync(
+                    userId,
+                    request,
+                    GetCurrentUserId());
+
+                return Ok(result);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
         }
 
         // PUT: api/UserPermissions/{id}
@@ -106,7 +148,10 @@ namespace FieldStaff.API.Controllers
                 GetCurrentUserId());
 
             if (!deleted)
-                return NotFound(new { message = "User permission not found." });
+                return NotFound(new
+                {
+                    message = "User permission not found."
+                });
 
             return Ok(new
             {
