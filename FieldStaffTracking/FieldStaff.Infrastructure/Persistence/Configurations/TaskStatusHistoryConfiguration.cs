@@ -30,8 +30,13 @@ namespace FieldStaff.Infrastructure.Persistence.Configurations
                 .WithMany(s => s.NewStatusHistories)
                 .HasForeignKey(h => h.NewStatusId)
                 .OnDelete(DeleteBehavior.Restrict);
-
             
+            builder.HasOne(h => h.User)
+                .WithMany(u => u.TaskStatusHistories)
+                .HasForeignKey(h => h.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+
             builder.HasQueryFilter(h => !h.ServiceTask.IsDeleted);
         }
     }

@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import api from "../services/api";
 import menuService from "../services/menuService";
 import roleMenuService from "../services/roleMenuService";
+import roleService from "../services/roleService";
 
 import Modal from "../components/common/Modal";
 import GenericForm from "../components/common/GenericForm";
@@ -183,78 +184,83 @@ function Menu() {
     // FETCH ROLE MENU DATA
     // =========================
 
-    const fetchRoleMenuData = useCallback(async () => {
+    
+const fetchRoleMenuData = useCallback(async () => {
 
-        try {
+    try {
 
-            setRoleMenuLoading(true);
+        setRoleMenuLoading(true);
+        setError("");
 
-            const [
-                myMenusResponse,
-                roleMenusResponse,
-                rolesResponse
-            ] = await Promise.all([
+        const [
+            myMenusResponse,
+            roleMenusResponse,
+            rolesResponse
+        ] = await Promise.all([
 
-                roleMenuService.getMyMenu(),
+            roleMenuService.getMyMenu(),
+            roleMenuService.getAllMenus(),
+            roleService.getAllRoles()
 
-                roleMenuService.getAllAssignedMenus(),
+        ]);
 
-                api.get("/Roles")
+        const myMenusData = extractArray(myMenusResponse);
 
-            ]);
+        const roleMenusData = extractArray(roleMenusResponse);
 
-            const myMenusData = extractArray(myMenusResponse);
+        // FIX: rolesResponse is already response.data
+        const rolesData = extractArray(rolesResponse)
+            .filter(role => role.isActive === true);
 
-            const roleMenusData = extractArray(roleMenusResponse);
+        console.log("My Menus:", myMenusData);
+        console.log("Role Menus:", roleMenusData);
+        console.log("All Roles Response:", rolesResponse);
+        console.log("Filtered Roles:", rolesData);
 
-            const rolesData = extractArray(rolesResponse.data)
-                .filter(role => role.isActive);
+        setMyMenus(myMenusData);
+        setRoleMenus(roleMenusData);
+        setRoles(rolesData);
 
-            setMyMenus(myMenusData);
-            setRoleMenus(roleMenusData);
-            setRoles(rolesData);
+        // Automatically select a role
+        setSelectedRoleId(previousId => {
 
-            // Select a role automatically if none is selected
-            setSelectedRoleId(previousId => {
-
-                const stillExists = rolesData.some(
-                    role => String(role.id) === String(previousId)
-                );
-
-                if (stillExists) {
-                    return previousId;
-                }
-
-                const currentRoleId = myMenusData[0]?.roleId;
-
-                // Prefer a role other than the currently logged-in role
-                const otherRole = rolesData.find(
-                    role => String(role.id) !== String(currentRoleId)
-                );
-
-                return String(
-                    (otherRole || rolesData[0])?.id ?? ""
-                );
-
-            });
-
-        } catch (err) {
-
-            console.error("Failed to fetch role menus:", err);
-
-            setError(
-                err.response?.data?.message ||
-                err.response?.data?.title ||
-                "Failed to load role menu information."
+            const stillExists = rolesData.some(
+                role => String(role.id) === String(previousId)
             );
 
-        } finally {
+            if (stillExists) {
+                return previousId;
+            }
 
-            setRoleMenuLoading(false);
+            const currentRoleId = myMenusData[0]?.roleId;
 
-        }
+            const otherRole = rolesData.find(
+                role => String(role.id) !== String(currentRoleId)
+            );
 
-    }, []);
+            return String(
+                (otherRole || rolesData[0])?.id ?? ""
+            );
+
+        });
+
+    } catch (err) {
+
+        console.error("Failed to fetch role menus:", err);
+
+        setError(
+            err.response?.data?.message ||
+            err.response?.data?.title ||
+            "Failed to load role menu information."
+        );
+
+    } finally {
+
+        setRoleMenuLoading(false);
+
+    }
+
+}, []);
 
 
     // =========================
@@ -808,16 +814,16 @@ function Menu() {
             render: (menu) => menu.menuPath || "-"
         },
 
-        {
-            key: "icon",
-            label: "Icon",
-            render: (menu) => menu.icon || "-"
-        },
+        // {
+        //     key: "icon",
+        //     label: "Icon",
+        //     render: (menu) => menu.icon || "-"
+        // },
 
-        {
-            key: "sortOrder",
-            label: "Sort Order"
-        },
+        // {
+        //     key: "sortOrder",
+        //     label: "Sort Order"
+        // },
 
         {
             key: "isActive",
@@ -1354,6 +1360,8 @@ function Menu() {
                     setPageNumber(1);
 
                 }}
+
+                loading={loading}
             />
 
 

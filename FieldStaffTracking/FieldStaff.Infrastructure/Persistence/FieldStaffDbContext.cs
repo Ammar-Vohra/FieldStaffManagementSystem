@@ -19,10 +19,14 @@ namespace FieldStaff.Infrastructure.Persistence
         public DbSet<Role> Roles { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<Customer> Customers { get; set; }
+
         public DbSet<ServiceTask> ServiceTasks { get; set; }
         public DbSet<StatusTask> TaskStatuses { get; set; }
         public DbSet<TaskPriority> TaskPriorities { get; set; }
+
         public DbSet<TaskStatusHistory> TaskStatusHistories { get; set; }
+        public DbSet<TaskAssignmentHistory> TaskAssignmentHistories { get; set; }
+
         public DbSet<Menu> Menus { get; set; }
         public DbSet<AuditLog> AuditLogs { get; set; }
 
@@ -86,6 +90,15 @@ namespace FieldStaff.Infrastructure.Persistence
 
             modelBuilder.Entity<ServiceTask>()
                 .HasQueryFilter(t => !t.IsDeleted);
+
+            modelBuilder.Entity<StatusTask>()
+                .HasQueryFilter(s => !s.IsDeleted);
+
+            modelBuilder.Entity<TaskPriority>()
+                .HasQueryFilter(p => !p.IsDeleted);
+
+            modelBuilder.Entity<TaskAssignmentHistory>()
+                .HasQueryFilter(h => !h.ServiceTask.IsDeleted);
 
             modelBuilder.Entity<Menu>()
                 .HasQueryFilter(m => !m.IsDeleted);

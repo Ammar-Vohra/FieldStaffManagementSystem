@@ -480,6 +480,54 @@ namespace FieldStaff.Infrastructure.Persistence.Migrations
                     b.ToTable("TaskStatuses", (string)null);
                 });
 
+            modelBuilder.Entity("FieldStaff.Domain.Entities.TaskAssignmentHistory", b =>
+                {
+                    b.Property<int>("TaskAssignmentHistoryId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("TaskAssignmentHistoryId"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("CreatedBy")
+                        .HasColumnType("int");
+
+                    b.Property<int>("NewAssignedStaffId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("OldAssignedStaffId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Remarks")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<int>("ServiceTaskId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("UpdatedBy")
+                        .HasColumnType("int");
+
+                    b.HasKey("TaskAssignmentHistoryId");
+
+                    b.HasIndex("CreatedBy");
+
+                    b.HasIndex("NewAssignedStaffId");
+
+                    b.HasIndex("OldAssignedStaffId");
+
+                    b.HasIndex("ServiceTaskId");
+
+                    b.HasIndex("UpdatedBy");
+
+                    b.ToTable("TaskAssignmentHistory", (string)null);
+                });
+
             modelBuilder.Entity("FieldStaff.Domain.Entities.TaskPriority", b =>
                 {
                     b.Property<int>("TaskPriorityId")
@@ -561,7 +609,7 @@ namespace FieldStaff.Infrastructure.Persistence.Migrations
                     b.Property<int?>("UpdatedBy")
                         .HasColumnType("int");
 
-                    b.Property<int?>("UserId")
+                    b.Property<int>("UserId")
                         .HasColumnType("int");
 
                     b.HasKey("TaskStatusHistoryId");
@@ -879,6 +927,42 @@ namespace FieldStaff.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Restrict);
                 });
 
+            modelBuilder.Entity("FieldStaff.Domain.Entities.TaskAssignmentHistory", b =>
+                {
+                    b.HasOne("FieldStaff.Domain.Entities.User", null)
+                        .WithMany()
+                        .HasForeignKey("CreatedBy")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("FieldStaff.Domain.Entities.User", "NewAssignedStaff")
+                        .WithMany()
+                        .HasForeignKey("NewAssignedStaffId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("FieldStaff.Domain.Entities.User", "OldAssignedStaff")
+                        .WithMany()
+                        .HasForeignKey("OldAssignedStaffId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("FieldStaff.Domain.Entities.ServiceTask", "ServiceTask")
+                        .WithMany("TaskAssignmentHistories")
+                        .HasForeignKey("ServiceTaskId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("FieldStaff.Domain.Entities.User", null)
+                        .WithMany()
+                        .HasForeignKey("UpdatedBy")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("NewAssignedStaff");
+
+                    b.Navigation("OldAssignedStaff");
+
+                    b.Navigation("ServiceTask");
+                });
+
             modelBuilder.Entity("FieldStaff.Domain.Entities.TaskPriority", b =>
                 {
                     b.HasOne("FieldStaff.Domain.Entities.User", null)
@@ -921,15 +1005,19 @@ namespace FieldStaff.Infrastructure.Persistence.Migrations
                         .HasForeignKey("UpdatedBy")
                         .OnDelete(DeleteBehavior.Restrict);
 
-                    b.HasOne("FieldStaff.Domain.Entities.User", null)
+                    b.HasOne("FieldStaff.Domain.Entities.User", "User")
                         .WithMany("TaskStatusHistories")
-                        .HasForeignKey("UserId");
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.Navigation("NewStatus");
 
                     b.Navigation("OldStatus");
 
                     b.Navigation("ServiceTask");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("FieldStaff.Domain.Entities.User", b =>
@@ -1012,6 +1100,8 @@ namespace FieldStaff.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("FieldStaff.Domain.Entities.ServiceTask", b =>
                 {
+                    b.Navigation("TaskAssignmentHistories");
+
                     b.Navigation("TaskStatusHistories");
                 });
 

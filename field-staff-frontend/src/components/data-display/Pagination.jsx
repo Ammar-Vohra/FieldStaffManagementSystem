@@ -4,12 +4,14 @@ function Pagination({
     pageSize,
     totalPages,
     totalRecords,
-    hasPreviousPage,
-    hasNextPage,
     onPageChange,
     onPageSizeChange,
     loading = false
 }) {
+
+    const hasPreviousPage = pageNumber > 1;
+    const hasNextPage = pageNumber < totalPages;
+
     return (
         <div className="bg-white border border-slate-200 rounded-xl p-4 flex flex-col md:flex-row items-center justify-between gap-4">
 

@@ -5,7 +5,7 @@ const getMyMenu = async () => {
     return response.data;
 };
 
-const getAllAssignedMenus = async () => {
+const getAllMenus = async () => {
     const response = await api.get(`/RoleMenus`);
     return response.data;
 };
@@ -36,7 +36,7 @@ const deleteRoleMenuById = async (roleMenuId) => {
 
 const roleMenuService = {
     getMyMenu,
-    getAllAssignedMenus,
+    getAllMenus,
     getRoleMenuById,
     createRoleMenuById,
     updateRoleMenuById,

@@ -7,6 +7,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Folder Include="Features\TaskAssignmentHistories\Interfaces\" />
+    <Folder Include="Features\TaskStatusHistories\Interfaces\" />
     <Folder Include="Validators\" />
   </ItemGroup>
 

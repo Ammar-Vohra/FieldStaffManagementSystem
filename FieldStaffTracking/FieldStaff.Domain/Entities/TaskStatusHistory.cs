@@ -13,6 +13,9 @@ namespace FieldStaff.Domain.Entities
         public int? OldStatusId { get; set; }
         public int NewStatusId { get; set; }
         public string? Remarks { get; set; }
+        public int UserId { get; set; }
+
+        public User User { get; set; } = null!;
         public ServiceTask ServiceTask { get; set; } = null!;   
         public StatusTask? OldStatus { get; set; }
         public StatusTask NewStatus { get; set; } = null!;

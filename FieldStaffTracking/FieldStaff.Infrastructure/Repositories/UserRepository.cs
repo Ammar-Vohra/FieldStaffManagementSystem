@@ -109,7 +109,7 @@ namespace FieldStaff.Infrastructure.Repositories
             orderedQuery = orderedQuery.ThenBy(u => u.UserId);
 
 
-            var users = await query
+            var users = await orderedQuery
                 .Skip((parameters.PageNumber - 1) * parameters.PageSize)
                 .Take(parameters.PageSize)
                 .ToListAsync();

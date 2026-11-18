@@ -29,5 +29,8 @@ namespace FieldStaff.Domain.Entities
 
         public ICollection<TaskStatusHistory> TaskStatusHistories
         { get; set; } = new List<TaskStatusHistory>();
+
+        public ICollection<TaskAssignmentHistory> TaskAssignmentHistories
+        { get; set; } = new List<TaskAssignmentHistory>();
     }
 }
