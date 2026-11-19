@@ -17,6 +17,8 @@ import Roles from "./pages/Role";
 import Users from "./pages/User";
 import UserPermissions from "./pages/UserPermission";
 import Menu from "./pages/Menu";
+import ServiceTasks from "./pages/ServiceTask";
+import Customers from "./pages/Customer";
 
 function App() {
   return (
@@ -40,6 +42,9 @@ function App() {
             <Route path="/users" element={<Users />} />
             <Route path="/user-permissions" element={<UserPermissions />} />
             <Route path="/menus" element={<Menu />} />
+            <Route path="/tasks" element={<ServiceTasks />} />
+            <Route path="/customers" element={<Customers />} />
+
 
 
 
