@@ -1,8 +1,10 @@
 
+
 using FieldStaff.API.Authorization.Handlers;
 using FieldStaff.API.Authorization.Providers;
 using FieldStaff.API.Middleware;
 using FieldStaff.Application;
+using FieldStaff.Application.Common.Interfaces;
 using FieldStaff.Infrastructure;
 using FieldStaff.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Authentication.JwtBearer;

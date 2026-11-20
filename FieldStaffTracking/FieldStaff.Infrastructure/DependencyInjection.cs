@@ -21,11 +21,17 @@ using FieldStaff.Application.Features.TaskPriorities;
 using FieldStaff.Application.Features.TaskPriorities.Interfaces;
 using FieldStaff.Application.Features.TaskStatuses;
 using FieldStaff.Application.Features.TaskStatuses.Interfaces;
+using FieldStaff.Application.Features.TaskStatusHistories;
+using FieldStaff.Application.Features.TaskStatusHistories.Interfaces;
+using FieldStaff.Application.Features.TaskAssignmentHistories;
+using FieldStaff.Application.Features.TaskAssignmentHistories.Interfaces;
 using FieldStaff.Application.Features.UserPermissions;
 using FieldStaff.Application.Features.UserPermissions.Interfaces;
 using FieldStaff.Application.Features.UserPermissions.Services;
 using FieldStaff.Application.Features.Users;
 using FieldStaff.Application.Features.Users.Interfaces;
+using FieldStaff.Application.Features.Dashboard;
+using FieldStaff.Application.Features.Dashboard.Interfaces;
 using FieldStaff.Application.Features.ServiceTasks;
 using FieldStaff.Application.Features.ServiceTasks.Interfaces;
 using FieldStaff.Application.Services;
@@ -35,6 +41,7 @@ using FieldStaff.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using FieldStaff.Infrastructure.Services;
 
 namespace FieldStaff.Infrastructure
 {
@@ -69,6 +76,10 @@ namespace FieldStaff.Infrastructure
             services.AddScoped<IPermissionAuthorizationRepository, PermissionAuthorizationRepository>();
             services.AddScoped<ICustomerRepository, CustomerRepository>();
             services.AddScoped<IServiceTaskRepository, ServiceTaskRepository>();
+            services.AddScoped<ITaskStatusHistoryRepository, TaskStatusHistoryRepository>();
+            services.AddScoped<ITaskAssignmentHistoryRepository, TaskAssignmentHistoryRepository>();
+            services.AddScoped<IDashboardRepository, DashboardRepository>();
+
 
 
 
@@ -86,6 +97,10 @@ namespace FieldStaff.Infrastructure
             services.AddScoped<IPermissionAuthorizationService, PermissionAuthorizationService>();
             services.AddScoped<ICustomerService, CustomerService>();
             services.AddScoped<IServiceTaskService, ServiceTaskService>();
+            services.AddScoped<ITaskStatusHistoryService, TaskStatusHistoryService>();
+            services.AddScoped<ITaskAssignmentHistoryService, TaskAssignmentHistoryService>();
+            services.AddScoped<IDashboardService, DashboardService>();
+
 
 
             services.AddScoped<IJwtService, JwtService>();

@@ -1,0 +1,10 @@
+﻿
+namespace FieldStaff.Application.Common.Interfaces
+{
+    public interface ICurrentUserService
+    {
+        int UserId { get; }
+
+        int RoleId { get; }
+    }
+}

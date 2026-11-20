@@ -6,6 +6,9 @@ using FieldStaff.Application.Features.ServiceTasks.Interfaces;
 using FieldStaff.Application.Features.TaskPriorities.Interfaces;
 using FieldStaff.Application.Features.TaskStatuses.Interfaces;
 using FieldStaff.Application.Features.Users.Interfaces;
+using FieldStaff.Application.Features.TaskStatusHistories.DTOs;
+using FieldStaff.Application.Features.TaskStatusHistories.Interfaces;
+using FieldStaff.Application.Features.TaskAssignmentHistories.Interfaces;
 using FieldStaff.Domain.Entities;
 
 namespace FieldStaff.Application.Features.ServiceTasks
@@ -17,19 +20,25 @@ namespace FieldStaff.Application.Features.ServiceTasks
         private readonly IUserRepository _userRepository;
         private readonly ITaskStatusRepository _taskStatusRepository;
         private readonly ITaskPriorityRepository _taskPriorityRepository;
+        private readonly ITaskStatusHistoryService _taskStatusHistoryService;
+        private readonly ITaskAssignmentHistoryService _taskAssignmentHistoryService;
 
         public ServiceTaskService(
             IServiceTaskRepository serviceTaskRepository,
             ICustomerRepository customerRepository,
             IUserRepository userRepository,
             ITaskStatusRepository taskStatusRepository,
-            ITaskPriorityRepository taskPriorityRepository)
+            ITaskPriorityRepository taskPriorityRepository,
+            ITaskStatusHistoryService taskStatusHistoryService,
+            ITaskAssignmentHistoryService taskAssignmentHistoryService)
         {
             _serviceTaskRepository = serviceTaskRepository;
             _customerRepository = customerRepository;
             _userRepository = userRepository;
             _taskStatusRepository = taskStatusRepository;
             _taskPriorityRepository = taskPriorityRepository;
+            _taskStatusHistoryService = taskStatusHistoryService;
+            _taskAssignmentHistoryService = taskAssignmentHistoryService;
         }
 
 
@@ -165,6 +174,117 @@ namespace FieldStaff.Application.Features.ServiceTasks
                 HasNextPage = parameters.PageNumber <
                     (int)Math.Ceiling((double)totalRecords / parameters.PageSize)
             };
+        }
+
+        public async Task<PaginatedResponse<ServiceTaskResponseDto>> GetMyTasksAsync(
+            int staffId,
+            ServiceTaskQueryParameters parameters)
+        {
+            if (staffId <= 0)
+                throw new InvalidOperationException("Invalid staff ID.");
+
+           
+            parameters.AssignedStaffId = staffId;
+
+            return await GetPagedServiceTasksAsync(parameters);
+        }
+
+
+        public async Task<ServiceTaskHistoryDetailResponseDto?> GetMyTaskDetailsAsync(
+    int serviceTaskId,
+    int staffId)
+        {
+            if (staffId <= 0)
+                throw new InvalidOperationException("Invalid staff ID.");
+
+            var serviceTask = await _serviceTaskRepository.GetByIdAsync(serviceTaskId);
+
+            if (serviceTask == null || serviceTask.AssignedStaffId != staffId)
+                return null;
+
+            var statusHistory =
+                await _taskStatusHistoryService.GetByServiceTaskIdAsync(serviceTaskId);
+
+            var assignmentHistory =
+                await _taskAssignmentHistoryService.GetByServiceTaskIdAsync(serviceTaskId);
+
+            var response = new ServiceTaskHistoryDetailResponseDto();
+
+            var taskDto = MapToResponseDto(serviceTask);
+
+            // Copy the base ServiceTaskResponseDto properties.
+            response.ServiceTaskId = taskDto.ServiceTaskId;
+            response.Title = taskDto.Title;
+            response.Description = taskDto.Description;
+            response.CustomerId = taskDto.CustomerId;
+            response.CustomerName = taskDto.CustomerName;
+            response.AssignedStaffId = taskDto.AssignedStaffId;
+            response.AssignedStaffName = taskDto.AssignedStaffName;
+            response.TaskStatusId = taskDto.TaskStatusId;
+            response.TaskStatusName = taskDto.TaskStatusName;
+            response.TaskPriorityId = taskDto.TaskPriorityId;
+            response.TaskPriorityName = taskDto.TaskPriorityName;
+            response.ScheduledDate = taskDto.ScheduledDate;
+            response.CompletionNote = taskDto.CompletionNote;
+            response.IsActive = taskDto.IsActive;
+            response.CreatedAt = taskDto.CreatedAt;
+
+            response.StatusHistory = statusHistory;
+            response.AssignmentHistory = assignmentHistory;
+
+            return response;
+        }
+
+
+        public async Task<ServiceTaskHistoryDetailResponseDto?> UpdateMyTaskStatusAsync(
+            int serviceTaskId,
+            UpdateTaskStatusHistoryRequestDto request,
+            int staffId)
+        {
+            if (staffId <= 0)
+                throw new InvalidOperationException("Invalid staff ID.");
+
+            var serviceTask = await _serviceTaskRepository.GetByIdAsync(serviceTaskId);
+
+            if (serviceTask == null || serviceTask.AssignedStaffId != staffId)
+                return null;
+
+            if (!serviceTask.IsActive)
+                throw new InvalidOperationException("This task is inactive.");
+
+            var newStatus = await _taskStatusRepository.GetByIdAsync(request.NewStatusId);
+
+            if (newStatus == null || !newStatus.IsActive)
+                throw new InvalidOperationException("Selected task status is invalid or inactive.");
+
+            var oldStatusId = serviceTask.TaskStatusId;
+            var now = DateTime.UtcNow;
+
+            serviceTask.TaskStatusId = newStatus.TaskStatusId;
+
+            if (request.CompletionNote != null)
+                serviceTask.CompletionNote = request.CompletionNote.Trim();
+
+            serviceTask.UpdatedBy = staffId;
+            serviceTask.UpdatedAt = now;
+
+            var history = new TaskStatusHistory
+            {
+                ServiceTaskId = serviceTask.ServiceTaskId,
+                OldStatusId = oldStatusId,
+                NewStatusId = newStatus.TaskStatusId,
+                UserId = staffId,
+                Remarks = request.Remarks?.Trim(),
+                CreatedBy = staffId,
+                CreatedAt = now
+            };
+
+            await _taskStatusHistoryService.AddAsync(history);
+
+            await _serviceTaskRepository.UpdateAsync(serviceTask);
+            await _serviceTaskRepository.SaveChangesAsync();
+
+            return await GetMyTaskDetailsAsync(serviceTaskId, staffId);
         }
 
         public async Task<ServiceTaskResponseDto?> UpdateServiceTaskAsync(

@@ -102,6 +102,7 @@ namespace FieldStaff.Application.Features.RoleMenus
                 RoleId = rm.RoleId,
                 RoleName = rm.Role.RoleName,
                 MenuId = rm.MenuId,
+                Icon = rm.Menu.Icon,
                 MenuName = rm.Menu.MenuName,
                 MenuPath = rm.Menu.MenuPath,
                 IsActive = rm.IsActive
@@ -236,6 +237,7 @@ namespace FieldStaff.Application.Features.RoleMenus
                 RoleName = roleName,
                 MenuId = roleMenu.MenuId,
                 MenuName = menuName,
+                Icon = roleMenu.Menu?.Icon,
                 MenuPath = roleMenu.Menu?.MenuPath,
                 IsActive = roleMenu.IsActive
             };

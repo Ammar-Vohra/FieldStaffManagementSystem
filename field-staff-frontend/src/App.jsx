@@ -19,6 +19,11 @@ import UserPermissions from "./pages/UserPermission";
 import Menu from "./pages/Menu";
 import ServiceTasks from "./pages/ServiceTask";
 import Customers from "./pages/Customer";
+import TaskPriority from "./pages/TaskPriority";
+import TaskStatus from "./pages/TaskStatus";
+import TaskReport from "./pages/TaskReport";
+import StaffReport from "./pages/StaffReport";
+import MyTasks from "./pages/MyTask";
 
 function App() {
   return (
@@ -44,6 +49,15 @@ function App() {
             <Route path="/menus" element={<Menu />} />
             <Route path="/tasks" element={<ServiceTasks />} />
             <Route path="/customers" element={<Customers />} />
+            <Route path="/customers" element={<Customers />} />
+            <Route path="/task-priorities" element={<TaskPriority />} />
+            <Route path="/task-statuses" element={<TaskStatus />} />
+            <Route path="/reports/tasks" element={<TaskReport />} />
+            <Route path="/reports/staff" element={<StaffReport />} />
+            <Route path="/my-tasks" element={<MyTasks />} />
+
+            
+
 
 
 

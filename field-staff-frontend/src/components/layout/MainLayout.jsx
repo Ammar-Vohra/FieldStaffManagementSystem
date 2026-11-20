@@ -81,7 +81,7 @@ function MainLayout() {
       />
 
       {/* Independently Scrollable Main Content */}
-      <main className="ml-64 min-h-screen p-6">
+      <main className="ml-72 min-h-screen p-6">
         <Outlet context={{ roleName }} />
       </main>
 

@@ -1,6 +1,7 @@
 ﻿
 using FieldStaff.Application.Features.ServiceTasks.DTOs;
 using FieldStaff.Application.Features.ServiceTasks.Interfaces;
+using FieldStaff.Application.Features.TaskStatusHistories.DTOs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -120,6 +121,103 @@ namespace FieldStaff.API.Controllers
                 return BadRequest(new { message = ex.Message });
             }
         }
+
+        [HttpGet("MyTasks")]
+        public async Task<IActionResult> GetMyTasks([FromQuery] ServiceTaskQueryParameters parameters)
+        {
+            try
+            {
+                int? staffId = GetCurrentUserId();
+
+                if (!staffId.HasValue)
+                {
+                    return Unauthorized(new
+                    {
+                        message = "Unable to identify the logged-in user."
+                    });
+                }
+
+                var result = await _serviceTaskService.GetMyTasksAsync(
+                    staffId.Value,
+                    parameters);
+
+                return Ok(result);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpGet("MyTasks/{id:int}")]
+        public async Task<IActionResult> GetMyTaskDetails(int id)
+        {
+            int? staffId = GetCurrentUserId();
+
+            if (!staffId.HasValue)
+            {
+                return Unauthorized(new
+                {
+                    message = "Unable to identify the logged-in user."
+                });
+            }
+
+            var result = await _serviceTaskService.GetMyTaskDetailsAsync(
+                id,
+                staffId.Value);
+
+            if (result == null)
+            {
+                return NotFound(new
+                {
+                    message = "Task not found or not assigned to you."
+                });
+            }
+
+            return Ok(result);
+        }
+
+        [HttpPut("MyTasks/{id:int}/Status")]
+        public async Task<IActionResult> UpdateMyTaskStatus(
+    int id,
+    [FromBody] UpdateTaskStatusHistoryRequestDto request)
+        {
+            try
+            {
+                int? staffId = GetCurrentUserId();
+
+                if (!staffId.HasValue)
+                {
+                    return Unauthorized(new
+                    {
+                        message = "Unable to identify the logged-in user."
+                    });
+                }
+
+                var result = await _serviceTaskService.UpdateMyTaskStatusAsync(
+                    id,
+                    request,
+                    staffId.Value);
+
+                if (result == null)
+                {
+                    return NotFound(new
+                    {
+                        message = "Task not found or not assigned to you."
+                    });
+                }
+
+                return Ok(result);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new
+                {
+                    message = ex.Message
+                });
+            }
+        }
+
 
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> DeleteServiceTask(int id)
