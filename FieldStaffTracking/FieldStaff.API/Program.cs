@@ -127,10 +127,12 @@ app.UseMiddleware<GlobalExceptionMiddleware>();
 
 app.UseHttpsRedirection();
 
+app.UseCors("AllowReact");
+
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.UseCors("AllowReact");
+
 app.MapControllers();
 
 app.Run();

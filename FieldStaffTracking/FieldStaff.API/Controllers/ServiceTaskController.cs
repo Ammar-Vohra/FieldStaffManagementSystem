@@ -1,4 +1,5 @@
 ﻿
+using FieldStaff.API.Authorization.Attributes;
 using FieldStaff.Application.Features.ServiceTasks.DTOs;
 using FieldStaff.Application.Features.ServiceTasks.Interfaces;
 using FieldStaff.Application.Features.TaskStatusHistories.DTOs;
@@ -20,6 +21,7 @@ namespace FieldStaff.API.Controllers
             _serviceTaskService = serviceTaskService;
         }
 
+        [HasPermission("TASK_CREATE")]
         [HttpPost]
         public async Task<IActionResult> CreateServiceTask(
             [FromBody] CreateServiceTaskRequestDto request)
@@ -51,6 +53,7 @@ namespace FieldStaff.API.Controllers
             }
         }
 
+        [HasPermission("TASK_VIEW_ALL")]
         [HttpGet]
         public async Task<IActionResult> GetServiceTasks(
             [FromQuery] ServiceTaskQueryParameters parameters)
@@ -68,6 +71,7 @@ namespace FieldStaff.API.Controllers
             }
         }
 
+        [HasPermission("TASK_VIEW_ALL")]
         [HttpGet("{id:int}")]
         public async Task<IActionResult> GetServiceTaskById(int id)
         {
@@ -84,6 +88,7 @@ namespace FieldStaff.API.Controllers
             return Ok(result);
         }
 
+        [HasPermission("TASK_UPDATE")]
         [HttpPut("{id:int}")]
         public async Task<IActionResult> UpdateServiceTask(
             int id,
@@ -122,8 +127,10 @@ namespace FieldStaff.API.Controllers
             }
         }
 
+        [HasPermission("TASK_VIEW_ASSIGNED")]
         [HttpGet("MyTasks")]
-        public async Task<IActionResult> GetMyTasks([FromQuery] ServiceTaskQueryParameters parameters)
+        public async Task<IActionResult> GetMyTasks(
+            [FromQuery] ServiceTaskQueryParameters parameters)
         {
             try
             {
@@ -149,6 +156,7 @@ namespace FieldStaff.API.Controllers
             }
         }
 
+        [HasPermission("TASK_VIEW_ASSIGNED")]
         [HttpGet("MyTasks/{id:int}")]
         public async Task<IActionResult> GetMyTaskDetails(int id)
         {
@@ -177,10 +185,11 @@ namespace FieldStaff.API.Controllers
             return Ok(result);
         }
 
+        [HasPermission("TASK_STATUS_UPDATE")]
         [HttpPut("MyTasks/{id:int}/Status")]
         public async Task<IActionResult> UpdateMyTaskStatus(
-    int id,
-    [FromBody] UpdateTaskStatusHistoryRequestDto request)
+            int id,
+            [FromBody] UpdateTaskStatusHistoryRequestDto request)
         {
             try
             {
@@ -218,7 +227,7 @@ namespace FieldStaff.API.Controllers
             }
         }
 
-
+        [HasPermission("TASK_DELETE")]
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> DeleteServiceTask(int id)
         {
@@ -252,7 +261,8 @@ namespace FieldStaff.API.Controllers
 
         private int? GetCurrentUserId()
         {
-            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var userIdClaim = User.FindFirst(
+                ClaimTypes.NameIdentifier)?.Value;
 
             if (int.TryParse(userIdClaim, out int userId))
             {

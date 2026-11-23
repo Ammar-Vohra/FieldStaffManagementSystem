@@ -8,6 +8,8 @@ import TaskStatusChart from "../components/dashboard/TaskStatusChart";
 import TodaysTasks from "../components/dashboard/TodaysTasks";
 import RecentTasks from "../components/dashboard/RecentTasks";
 import StaffWorkload from "../components/dashboard/StaffWorkload";
+import RecentActivities from "../components/dashboard/RecentActivities";
+import FieldStaffTaskSection from "../components/dashboard/FieldStaffTaskSection";
 
 function Dashboard() {
     const [summary, setSummary] = useState(null);
@@ -43,6 +45,7 @@ function Dashboard() {
             <div className="flex min-h-[60vh] items-center justify-center">
                 <div className="flex flex-col items-center gap-3">
                     <div className="h-10 w-10 animate-spin rounded-full border-4 border-blue-600 border-t-transparent"></div>
+
                     <p className="text-sm font-medium text-gray-500">
                         Loading dashboard...
                     </p>
@@ -72,7 +75,21 @@ function Dashboard() {
         return null;
     }
 
+    // Identify dashboard type from the API response structure.
+    const isFieldStaff = Array.isArray(summary.upcomingTasks);
     const isSupervisor = summary.overdueTasks !== undefined;
+
+    const dashboardTitle = isFieldStaff
+        ? "Field Staff Dashboard"
+        : isSupervisor
+            ? "Supervisor Dashboard"
+            : "Admin Dashboard";
+
+    const dashboardDescription = isFieldStaff
+        ? "View your assigned tasks and track your daily work."
+        : isSupervisor
+            ? "Monitor service tasks and field staff performance."
+            : "Overview of your field staff operations and service tasks.";
 
     return (
         <div className="space-y-6 p-4 md:p-6">
@@ -80,41 +97,73 @@ function Dashboard() {
             {/* Dashboard Header */}
             <div>
                 <h1 className="text-2xl font-bold text-gray-800">
-                    {isSupervisor ? "Supervisor Dashboard" : "Admin Dashboard"}
+                    {dashboardTitle}
                 </h1>
 
                 <p className="mt-1 text-sm text-gray-500">
-                    {isSupervisor
-                        ? "Monitor service tasks and field staff performance."
-                        : "Overview of your field staff operations and service tasks."}
+                    {dashboardDescription}
                 </p>
             </div>
 
             {/* Summary Cards */}
             <SummaryCards summary={summary} />
 
-            {/* Task Status and Staff Workload */}
-            <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
+            {/* Field Staff Dashboard */}
+            {isFieldStaff ? (
+                <div className="space-y-6">
 
-                <TaskStatusChart
-                    data={summary.taskStatusDistribution || []}
-                />
+                    <FieldStaffTaskSection
+                        title="Today's Tasks"
+                        tasks={summary.todaysTasks || []}
+                        emptyMessage="You have no tasks scheduled for today."
+                    />
 
-                <StaffWorkload
-                    staff={summary.staffWorkload || []}
-                />
+                    <FieldStaffTaskSection
+                        title="Upcoming Tasks"
+                        tasks={summary.upcomingTasks || []}
+                        emptyMessage="You have no upcoming tasks."
+                    />
 
-            </div>
+                    <FieldStaffTaskSection
+                        title="Recently Completed Tasks"
+                        tasks={summary.recentCompletedTasks || []}
+                        emptyMessage="You haven't completed any tasks yet."
+                    />
 
-            {/* Today's Tasks */}
-            <TodaysTasks
-                tasks={summary.todaysTasks || []}
-            />
+                </div>
+            ) : (
+                <>
+                    {/* Admin and Supervisor Dashboard */}
+                    <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
 
-            {/* Recent Tasks */}
-            <RecentTasks
-                tasks={summary.recentTasks || []}
-            />
+                        <TaskStatusChart
+                            data={summary.taskStatusDistribution || []}
+                        />
+
+                        <StaffWorkload
+                            staff={summary.staffWorkload || []}
+                        />
+
+                    </div>
+
+                    {/* Today's Tasks */}
+                    <TodaysTasks
+                        tasks={summary.todaysTasks || []}
+                    />
+
+                    {/* Recent Tasks */}
+                    <RecentTasks
+                        tasks={summary.recentTasks || []}
+                    />
+
+                    {/* Recent Activities - Supervisor only */}
+                    {isSupervisor && (
+                        <RecentActivities
+                            activities={summary.recentActivities || []}
+                        />
+                    )}
+                </>
+            )}
 
         </div>
     );

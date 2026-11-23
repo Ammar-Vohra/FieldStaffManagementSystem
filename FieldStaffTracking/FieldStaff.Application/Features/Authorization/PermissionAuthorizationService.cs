@@ -1,6 +1,5 @@
 ﻿
 using FieldStaff.Application.Features.Authorization.Interfaces;
-using Microsoft.Extensions.Configuration;
 
 namespace FieldStaff.Application.Features.Authorization.Services
 {
@@ -8,16 +7,11 @@ namespace FieldStaff.Application.Features.Authorization.Services
         : IPermissionAuthorizationService
     {
         private readonly IPermissionAuthorizationRepository _repository;
-        private readonly int _adminRoleId;
 
         public PermissionAuthorizationService(
-            IPermissionAuthorizationRepository repository,
-            IConfiguration configuration)
+            IPermissionAuthorizationRepository repository)
         {
             _repository = repository;
-
-            _adminRoleId = configuration.GetValue<int>(
-                "Authorization:AdminRoleId");
         }
 
         public async Task<bool> HasPermissionAsync(
@@ -27,17 +21,22 @@ namespace FieldStaff.Application.Features.Authorization.Services
             if (string.IsNullOrWhiteSpace(permissionCode))
                 return false;
 
-           
+            permissionCode = permissionCode.Trim();
+
             var user = await _repository.GetActiveUserAsync(userId);
 
             if (user == null)
                 return false;
 
             
-            if (user.RoleId == _adminRoleId)
+            if (string.Equals(
+                user.Role?.RoleName,
+                "Admin",
+                StringComparison.OrdinalIgnoreCase))
+            {
                 return true;
+            }
 
-            
             var permission =
                 await _repository.GetActivePermissionByCodeAsync(
                     permissionCode);
@@ -45,7 +44,7 @@ namespace FieldStaff.Application.Features.Authorization.Services
             if (permission == null)
                 return false;
 
-           
+            
             var userOverride =
                 await _repository.GetValidUserOverrideAsync(
                     userId,
@@ -55,29 +54,34 @@ namespace FieldStaff.Application.Features.Authorization.Services
                 return userOverride.IsGranted;
 
             
-            return (await _repository.GetRolePermissionCodesAsync(
-                user.RoleId))
-                .Contains(permissionCode,
-                    StringComparer.OrdinalIgnoreCase);
+            var rolePermissions =
+                await _repository.GetRolePermissionCodesAsync(
+                    user.RoleId);
+
+            return rolePermissions.Contains(
+                permissionCode,
+                StringComparer.OrdinalIgnoreCase);
         }
 
         public async Task<List<string>> GetEffectivePermissionsAsync(
             int userId)
         {
-          
             var user = await _repository.GetActiveUserAsync(userId);
 
             if (user == null)
                 return new List<string>();
 
-           
-            if (user.RoleId == _adminRoleId)
+            
+            if (string.Equals(
+                user.Role?.RoleName,
+                "Admin",
+                StringComparison.OrdinalIgnoreCase))
             {
                 return await _repository
                     .GetAllActivePermissionCodesAsync();
             }
 
-          
+            
             var effectivePermissions = new HashSet<string>(
                 await _repository.GetRolePermissionCodesAsync(
                     user.RoleId),
@@ -91,7 +95,6 @@ namespace FieldStaff.Application.Features.Authorization.Services
 
             foreach (var userOverride in overrides)
             {
-              
                 if (userOverride.ExpiresAt.HasValue &&
                     userOverride.ExpiresAt.Value <= now)
                 {

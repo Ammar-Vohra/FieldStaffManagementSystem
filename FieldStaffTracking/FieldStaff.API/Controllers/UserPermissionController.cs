@@ -1,6 +1,7 @@
 ﻿
 using FieldStaff.API.Authorization.Attributes;
 using FieldStaff.Application.Features.UserPermissions.DTOs;
+using FieldStaff.Application.Features.Authorization.Interfaces;
 using FieldStaff.Application.Features.UserPermissions.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -9,13 +10,14 @@ namespace FieldStaff.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [HasPermission("USER_PERMISSION_MANAGE")]
     public class UserPermissionsController : ControllerBase
     {
         private readonly IUserPermissionService _service;
+        private readonly IPermissionAuthorizationService _permissionAuthorizationService;
 
-        public UserPermissionsController(IUserPermissionService service)
+        public UserPermissionsController(IUserPermissionService service, IPermissionAuthorizationService permissionAuthorizationService)
         {
+            _permissionAuthorizationService = permissionAuthorizationService;
             _service = service;
         }
 
@@ -52,6 +54,29 @@ namespace FieldStaff.API.Controllers
                 return BadRequest(new { message = ex.Message });
             }
         }
+
+
+        [HttpGet("my-permissions")]
+        public async Task<IActionResult> GetMyPermissions()
+        {
+            var userIdClaim = User.FindFirst(
+                ClaimTypes.NameIdentifier)?.Value;
+
+            if (!int.TryParse(userIdClaim, out int userId))
+            {
+                return Unauthorized(new
+                {
+                    message = "Invalid user identity."
+                });
+            }
+
+            var permissions =
+                await _permissionAuthorizationService
+                    .GetEffectivePermissionsAsync(userId);
+
+            return Ok(permissions);
+        }
+
 
         // GET: api/UserPermissions/{id}
         [HttpGet("{id}")]

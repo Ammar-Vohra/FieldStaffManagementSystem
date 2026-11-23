@@ -24,6 +24,8 @@ import TaskStatus from "./pages/TaskStatus";
 import TaskReport from "./pages/TaskReport";
 import StaffReport from "./pages/StaffReport";
 import MyTasks from "./pages/MyTask";
+import NotFound from "./pages/NotFound";
+import Unauthorized from "./pages/Unauthorized";
 
 function App() {
   return (
@@ -55,7 +57,9 @@ function App() {
             <Route path="/reports/tasks" element={<TaskReport />} />
             <Route path="/reports/staff" element={<StaffReport />} />
             <Route path="/my-tasks" element={<MyTasks />} />
-
+            <Route path="/*" element={<NotFound />} />
+            <Route path="/unauthorized" element={<Unauthorized />} />
+            
             
 
 

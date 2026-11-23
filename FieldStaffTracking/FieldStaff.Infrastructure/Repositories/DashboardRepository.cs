@@ -76,7 +76,7 @@ namespace FieldStaff.Infrastructure.Repositories
                 .Where(u =>
                     u.IsActive &&
                     u.Role.IsActive &&
-                    u.Role.RoleName == "Field Staff");
+                    u.Role.RoleName == "FieldStaff");
 
             var totalFieldStaff = await fieldStaff.CountAsync();
 
@@ -228,7 +228,7 @@ namespace FieldStaff.Infrastructure.Repositories
                 .Where(u =>
                     u.IsActive &&
                     u.Role.IsActive &&
-                    u.Role.RoleName == "Field Staff");
+                    u.Role.RoleName == "FieldStaff");
 
             var totalFieldStaff = await fieldStaff.CountAsync();
 
@@ -309,6 +309,8 @@ namespace FieldStaff.Infrastructure.Repositories
                 })
                 .ToListAsync();
 
+
+
             // Five most recent task status changes.
             var recentActivities = await _context.TaskStatusHistories
                 .Where(h => h.ServiceTask.IsActive)
@@ -343,6 +345,107 @@ namespace FieldStaff.Infrastructure.Repositories
                 StaffWorkload = staffWorkload,
                 RecentActivities = recentActivities
             };
+        }
+
+        public async Task<FieldStaffDashboardSummaryDto> GetFieldStaffSummaryAsync(int userId)
+        {
+            var today = DateTime.Today;
+            var tomorrow = today.AddDays(1);
+
+            var assignedTasks = _context.ServiceTasks
+                .Where(t => t.IsActive && t.AssignedStaffId == userId);
+
+            var statuses = await _context.TaskStatuses
+                .Where(s => s.IsActive)
+                .ToListAsync();
+
+            var pendingStatusIds = statuses
+                .Where(s => s.TaskStatusName.Equals("Pending", StringComparison.OrdinalIgnoreCase))
+                .Select(s => s.TaskStatusId)
+                .ToList();
+
+            var inProgressStatusIds = statuses
+                .Where(s => s.TaskStatusName.Equals("In Progress", StringComparison.OrdinalIgnoreCase))
+                .Select(s => s.TaskStatusId)
+                .ToList();
+
+            var completedStatusIds = statuses
+                .Where(s => s.TaskStatusName.Equals("Completed", StringComparison.OrdinalIgnoreCase))
+                .Select(s => s.TaskStatusId)
+                .ToList();
+
+            var result = new FieldStaffDashboardSummaryDto
+            {
+                TotalTasks = await assignedTasks.CountAsync(),
+
+                PendingTasks = await assignedTasks.CountAsync(
+                    t => pendingStatusIds.Contains(t.TaskStatusId)),
+
+                InProgressTasks = await assignedTasks.CountAsync(
+                    t => inProgressStatusIds.Contains(t.TaskStatusId)),
+
+                CompletedTasks = await assignedTasks.CountAsync(
+                    t => completedStatusIds.Contains(t.TaskStatusId)),
+
+                TodaysTasks = await assignedTasks
+                    .Where(t => t.ScheduledDate >= today && t.ScheduledDate < tomorrow)
+                    .OrderBy(t => t.ScheduledDate)
+                    .Select(t => new FieldStaffTaskDto
+                    {
+                        ServiceTaskId = t.ServiceTaskId,
+                        Title = t.Title,
+                        Description = t.Description,
+                        CustomerName = t.Customer.CustomerName,
+                        ServiceAddress = t.Customer.ServiceAddress,
+                        StatusName = t.TaskStatus.TaskStatusName,
+                        PriorityName = t.TaskPriority.TaskPriorityName,
+                        ScheduledDate = t.ScheduledDate,
+                        CreatedAt = t.CreatedAt,
+                        CompletionNote = t.CompletionNote
+                    })
+                    .ToListAsync(),
+
+                UpcomingTasks = await assignedTasks
+                    .Where(t => t.ScheduledDate >= tomorrow &&
+                                !completedStatusIds.Contains(t.TaskStatusId))
+                    .OrderBy(t => t.ScheduledDate)
+                    .Take(10)
+                    .Select(t => new FieldStaffTaskDto
+                    {
+                        ServiceTaskId = t.ServiceTaskId,
+                        Title = t.Title,
+                        Description = t.Description,
+                        CustomerName = t.Customer.CustomerName,
+                        ServiceAddress = t.Customer.ServiceAddress,
+                        StatusName = t.TaskStatus.TaskStatusName,
+                        PriorityName = t.TaskPriority.TaskPriorityName,
+                        ScheduledDate = t.ScheduledDate,
+                        CreatedAt = t.CreatedAt,
+                        CompletionNote = t.CompletionNote
+                    })
+                    .ToListAsync(),
+
+                RecentCompletedTasks = await assignedTasks
+                    .Where(t => completedStatusIds.Contains(t.TaskStatusId))
+                    .OrderByDescending(t => t.UpdatedAt ?? t.CreatedAt)
+                    .Take(5)
+                    .Select(t => new FieldStaffTaskDto
+                    {
+                        ServiceTaskId = t.ServiceTaskId,
+                        Title = t.Title,
+                        Description = t.Description,
+                        CustomerName = t.Customer.CustomerName,
+                        ServiceAddress = t.Customer.ServiceAddress,
+                        StatusName = t.TaskStatus.TaskStatusName,
+                        PriorityName = t.TaskPriority.TaskPriorityName,
+                        ScheduledDate = t.ScheduledDate,
+                        CreatedAt = t.CreatedAt,
+                        CompletionNote = t.CompletionNote
+                    })
+                    .ToListAsync()
+            };
+
+            return result;
         }
 
 

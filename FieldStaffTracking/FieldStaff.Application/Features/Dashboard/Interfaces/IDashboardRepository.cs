@@ -7,6 +7,7 @@ namespace FieldStaff.Application.Features.Dashboard.Interfaces
     {
         Task<DashboardSummaryResponseDto> GetAdminSummaryAsync();
         Task<SupervisorDashboardSummaryResponseDto> GetSupervisorSummaryAsync();
+        Task<FieldStaffDashboardSummaryDto> GetFieldStaffSummaryAsync(int userId);
         Task<string?> GetRoleNameByIdAsync(int roleId);
     }
 }

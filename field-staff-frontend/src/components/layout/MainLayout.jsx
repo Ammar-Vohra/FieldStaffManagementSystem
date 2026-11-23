@@ -48,20 +48,20 @@ function MainLayout() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        Loading your dashboard...
+      <div className="min-h-screen flex items-center justify-center bg-slate-100">
+        <p className="text-slate-600">Loading your dashboard...</p>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center gap-4">
-        <p className="text-red-600">{error}</p>
+      <div className="min-h-screen flex flex-col items-center justify-center gap-4 bg-slate-100 p-4">
+        <p className="text-red-600 text-center">{error}</p>
 
         <button
           onClick={() => window.location.reload()}
-          className="bg-blue-600 text-white px-4 py-2 rounded-lg"
+          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
         >
           Retry
         </button>
@@ -72,7 +72,7 @@ function MainLayout() {
   return (
     <div className="min-h-screen bg-slate-100">
 
-      {/* Fixed Sidebar */}
+      {/* Responsive Sidebar */}
       <Sidebar
         menus={menus}
         roleName={roleName}
@@ -80,9 +80,11 @@ function MainLayout() {
         onLogout={handleLogout}
       />
 
-      {/* Independently Scrollable Main Content */}
-      <main className="ml-72 min-h-screen p-6">
-        <Outlet context={{ roleName }} />
+      {/* Main Content */}
+      <main className="min-h-screen pt-16 lg:pt-0 lg:ml-72">
+        <div className="p-4 sm:p-6 lg:p-8">
+          <Outlet context={{ roleName }} />
+        </div>
       </main>
 
     </div>

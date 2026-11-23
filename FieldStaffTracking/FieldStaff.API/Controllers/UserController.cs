@@ -20,6 +20,7 @@ namespace FieldStaff.API.Controllers
             _userService = userService;
         }
 
+        [HasPermission("USER_CREATE")]
         [HttpPost]
         public async Task<IActionResult> CreateUser(
             [FromBody] CreateUserRequestDto request)
@@ -42,8 +43,7 @@ namespace FieldStaff.API.Controllers
                 return BadRequest(new { message = ex.Message });
             }
         }
-        
-        
+
         [HasPermission("USER_VIEW")]
         [HttpGet("all")]
         public async Task<IActionResult> GetAllUsers()
@@ -53,8 +53,7 @@ namespace FieldStaff.API.Controllers
             return Ok(result);
         }
 
-
-       
+        [HasPermission("USER_VIEW")]
         [HttpGet]
         public async Task<IActionResult> GetUsers(
             [FromQuery] UserQueryParameters parameters)
@@ -74,7 +73,7 @@ namespace FieldStaff.API.Controllers
             }
         }
 
-
+        [HasPermission("USER_VIEW")]
         [HttpGet("{id:int}")]
         public async Task<IActionResult> GetUserById(int id)
         {
@@ -91,6 +90,7 @@ namespace FieldStaff.API.Controllers
             return Ok(result);
         }
 
+        [HasPermission("USER_UPDATE")]
         [HttpPut("{id:int}")]
         public async Task<IActionResult> UpdateUser(
             int id,
@@ -121,6 +121,7 @@ namespace FieldStaff.API.Controllers
             }
         }
 
+        [HasPermission("USER_DELETE")]
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> DeleteUser(int id)
         {
@@ -146,7 +147,8 @@ namespace FieldStaff.API.Controllers
 
         private int? GetCurrentUserId()
         {
-            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var userIdClaim = User.FindFirst(
+                ClaimTypes.NameIdentifier)?.Value;
 
             if (int.TryParse(userIdClaim, out int userId))
             {

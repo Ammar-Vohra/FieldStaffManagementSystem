@@ -25,6 +25,7 @@ namespace FieldStaff.Infrastructure.Repositories
                     u.UserId == userId &&
                     u.IsActive &&
                     !u.IsDeleted &&
+                    u.Role != null &&
                     u.Role.IsActive &&
                     !u.Role.IsDeleted);
         }
@@ -32,6 +33,8 @@ namespace FieldStaff.Infrastructure.Repositories
         public async Task<Permission?> GetActivePermissionByCodeAsync(
             string permissionCode)
         {
+            permissionCode = permissionCode.Trim();
+
             return await _context.Permissions
                 .FirstOrDefaultAsync(p =>
                     p.PermissionCode == permissionCode &&

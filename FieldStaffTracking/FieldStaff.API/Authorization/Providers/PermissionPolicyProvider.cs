@@ -26,8 +26,8 @@ namespace FieldStaff.API.Authorization.Providers
                 var permissionCode = policyName.Substring(PolicyPrefix.Length);
 
                 var policy = new AuthorizationPolicyBuilder()
-                    .AddRequirements(
-                        new PermissionRequirement(permissionCode))
+                    .RequireAuthenticatedUser()
+                    .AddRequirements(new PermissionRequirement(permissionCode))
                     .Build();
 
                 return Task.FromResult<AuthorizationPolicy?>(policy);

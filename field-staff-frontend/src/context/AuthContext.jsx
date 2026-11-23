@@ -1,4 +1,3 @@
-
 import { createContext, useContext, useState } from "react";
 import authService from "../services/authService";
 
@@ -6,8 +5,13 @@ const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(() => {
-    const storedUser = localStorage.getItem("user");
-    return storedUser ? JSON.parse(storedUser) : null;
+    try {
+      const storedUser = localStorage.getItem("user");
+      return storedUser ? JSON.parse(storedUser) : null;
+    } catch {
+      localStorage.removeItem("user");
+      return null;
+    }
   });
 
   const [token, setToken] = useState(() => {
@@ -25,8 +29,8 @@ export const AuthProvider = ({ children }) => {
     const userData = {
       userId: response.userId,
       userName: response.userName,
-    //   email: response.email,
       roleId: response.roleId,
+      email: response.email,
     };
 
     localStorage.setItem("token", response.token);
