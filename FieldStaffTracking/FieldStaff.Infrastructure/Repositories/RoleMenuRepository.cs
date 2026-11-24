@@ -39,11 +39,24 @@ namespace FieldStaff.Infrastructure.Persistence.Repositories
                 .ToListAsync();
         }
 
+
+        public async Task<List<RoleMenu>> GetAllAssignmentsByRoleIdAsync(int roleId)
+        {
+            return await _context.RoleMenus
+                .Include(rm => rm.Role)
+                .Include(rm => rm.Menu)
+                .Where(rm => rm.RoleId == roleId)
+                .ToListAsync();
+                
+        }
+
+
         public async Task<List<RoleMenu>> GetByRoleIdAsync(int roleId)
         {
             return await _context.RoleMenus
                 .Include(rm => rm.Role)
                 .Include(rm => rm.Menu)
+                    .ThenInclude(m => m.Permission)
                 .Where(rm =>
                     rm.RoleId == roleId &&
                     rm.IsActive &&

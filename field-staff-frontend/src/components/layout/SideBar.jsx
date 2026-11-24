@@ -26,6 +26,8 @@ import {
   X,
 } from "lucide-react";
 
+import { usePermissions } from "../../context/PermissionContext";
+
 const ICON_MAP = {
   "layout-dashboard": LayoutDashboard,
   "users": Users,
@@ -53,12 +55,45 @@ function MenuIcon({ name }) {
   return <IconComponent className="w-4 h-4 shrink-0" />;
 }
 
+// Filter menus recursively based on effective permissions.
+function filterMenus(menus, hasPermission) {
+  return menus
+    .filter((menu) => menu.isActive)
+    .map((menu) => {
+      const filteredChildren = filterMenus(
+        menu.children || [],
+        hasPermission
+      );
+
+      const hasChildren = filteredChildren.length > 0;
+
+      const hasOwnPermission =
+        menu.permissionCode &&
+        hasPermission(menu.permissionCode);
+
+      // Parent menus without their own permission remain visible
+      // when at least one child is accessible.
+      if (menu.children?.length > 0) {
+        if (hasOwnPermission || hasChildren) {
+          return {
+            ...menu,
+            children: filteredChildren,
+          };
+        }
+
+        return null;
+      }
+
+      // Leaf menus require an assigned permission.
+      return hasOwnPermission ? menu : null;
+    })
+    .filter(Boolean);
+}
+
 function MenuItem({ menu, onNavigate }) {
   const [expanded, setExpanded] = useState(false);
 
   const hasChildren = menu.children?.length > 0;
-
-  if (!menu.isActive) return null;
 
   return (
     <div>
@@ -114,7 +149,13 @@ function MenuItem({ menu, onNavigate }) {
 function Sidebar({ menus = [], roleName, userName, onLogout }) {
   const [isOpen, setIsOpen] = useState(false);
 
+  const { hasPermission, loadingPermissions } = usePermissions();
+
   const closeSidebar = () => setIsOpen(false);
+
+  const visibleMenus = loadingPermissions
+    ? []
+    : filterMenus(menus, hasPermission);
 
   return (
     <>
@@ -196,15 +237,16 @@ function Sidebar({ menus = [], roleName, userName, onLogout }) {
           </p>
         </div>
 
-        {/* Dynamic Menus */}
+        {/* Permission-Based Menus */}
         <nav className="flex-1 min-h-0 overflow-y-auto scrollbar-hide p-3 space-y-1.5">
-          {menus.map((menu) => (
-            <MenuItem
-              key={menu.menuId}
-              menu={menu}
-              onNavigate={closeSidebar}
-            />
-          ))}
+          {!loadingPermissions &&
+            visibleMenus.map((menu) => (
+              <MenuItem
+                key={menu.menuId}
+                menu={menu}
+                onNavigate={closeSidebar}
+              />
+            ))}
         </nav>
 
         {/* Logout */}

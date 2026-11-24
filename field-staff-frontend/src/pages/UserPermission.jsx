@@ -256,7 +256,7 @@ function UserPermissions() {
                     placeholder="Select a user"
                     options={users.map(user => ({
                         value: String(user.userId),
-                        label: `${user.userName} (${user.email})`
+                        label: `${user.userName} (${user.roleName})`
                     }))}
                 />
 

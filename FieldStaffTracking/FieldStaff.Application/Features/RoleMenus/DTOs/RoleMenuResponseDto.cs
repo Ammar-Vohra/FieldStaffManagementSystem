@@ -11,6 +11,8 @@
         public string? Icon { get; set; }
         public string MenuName { get; set; } = string.Empty;
         public string? MenuPath { get; set; }
+        public int? PermissionId { get; set; }
+        public string? PermissionCode { get; set; }
 
         public bool IsActive { get; set; }
 

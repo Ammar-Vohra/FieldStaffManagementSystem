@@ -1,10 +1,10 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 
-import api from "../services/api";
 import menuService from "../services/menuService";
 import roleMenuService from "../services/roleMenuService";
 import roleService from "../services/roleService";
+import permissionService from "../services/permissionService";
 
 import Modal from "../components/common/Modal";
 import GenericForm from "../components/common/GenericForm";
@@ -17,7 +17,6 @@ import SearchInput from "../components/filters/SearchInput";
 import SelectFilter from "../components/filters/SelectFilter";
 import SortSelect from "../components/filters/SortSelect";
 
-
 function Menu() {
 
     // =========================
@@ -26,9 +25,11 @@ function Menu() {
 
     const [menus, setMenus] = useState([]);
     const [allMenus, setAllMenus] = useState([]);
+    const [permissions, setPermissions] = useState([]);
 
     const [loading, setLoading] = useState(false);
     const [saving, setSaving] = useState(false);
+    const [permissionsLoading, setPermissionsLoading] = useState(false);
 
     const [error, setError] = useState("");
     const [success, setSuccess] = useState("");
@@ -64,7 +65,6 @@ function Menu() {
     const [roleMenus, setRoleMenus] = useState([]);
 
     const [selectedRoleId, setSelectedRoleId] = useState("");
-
     const [selectedMenuIds, setSelectedMenuIds] = useState([]);
 
     const [roleMenuLoading, setRoleMenuLoading] = useState(false);
@@ -106,7 +106,6 @@ function Menu() {
         try {
 
             const response = await menuService.getAllMenus();
-
             const data = extractArray(response);
 
             setAllMenus(data);
@@ -114,6 +113,45 @@ function Menu() {
         } catch (err) {
 
             console.error("Failed to fetch all menus:", err);
+
+        }
+
+    }, []);
+
+
+    // =========================
+    // FETCH PERMISSIONS
+    // =========================
+
+    const fetchPermissions = useCallback(async () => {
+
+        try {
+
+            setPermissionsLoading(true);
+
+            const response = await permissionService.getAllPermissions();
+            const data = extractArray(response);
+
+            setPermissions(
+                data.filter(permission =>
+                    permission.isActive === true &&
+                    permission.isDeleted !== true
+                )
+            );
+
+        } catch (err) {
+
+            console.error("Failed to fetch permissions:", err);
+
+            setError(
+                err.response?.data?.message ||
+                err.response?.data?.title ||
+                "Failed to load permissions."
+            );
+
+        } finally {
+
+            setPermissionsLoading(false);
 
         }
 
@@ -184,83 +222,74 @@ function Menu() {
     // FETCH ROLE MENU DATA
     // =========================
 
-    
-const fetchRoleMenuData = useCallback(async () => {
+    const fetchRoleMenuData = useCallback(async () => {
 
-    try {
+        try {
 
-        setRoleMenuLoading(true);
-        setError("");
+            setRoleMenuLoading(true);
+            setError("");
 
-        const [
-            myMenusResponse,
-            roleMenusResponse,
-            rolesResponse
-        ] = await Promise.all([
+            const [
+                myMenusResponse,
+                roleMenusResponse,
+                rolesResponse
+            ] = await Promise.all([
 
-            roleMenuService.getMyMenu(),
-            roleMenuService.getAllMenus(),
-            roleService.getAllRoles()
+                roleMenuService.getMyMenu(),
+                roleMenuService.getAllMenus(),
+                roleService.getAllRoles()
 
-        ]);
+            ]);
 
-        const myMenusData = extractArray(myMenusResponse);
+            const myMenusData = extractArray(myMenusResponse);
+            const roleMenusData = extractArray(roleMenusResponse);
 
-        const roleMenusData = extractArray(roleMenusResponse);
+            const rolesData = extractArray(rolesResponse)
+                .filter(role => role.isActive === true);
 
-        // FIX: rolesResponse is already response.data
-        const rolesData = extractArray(rolesResponse)
-            .filter(role => role.isActive === true);
+            setMyMenus(myMenusData);
+            setRoleMenus(roleMenusData);
+            setRoles(rolesData);
 
-        console.log("My Menus:", myMenusData);
-        console.log("Role Menus:", roleMenusData);
-        console.log("All Roles Response:", rolesResponse);
-        console.log("Filtered Roles:", rolesData);
+            setSelectedRoleId(previousId => {
 
-        setMyMenus(myMenusData);
-        setRoleMenus(roleMenusData);
-        setRoles(rolesData);
+                const stillExists = rolesData.some(
+                    role => String(role.id) === String(previousId)
+                );
 
-        // Automatically select a role
-        setSelectedRoleId(previousId => {
+                if (stillExists) {
+                    return previousId;
+                }
 
-            const stillExists = rolesData.some(
-                role => String(role.id) === String(previousId)
+                const currentRoleId = myMenusData[0]?.roleId;
+
+                const otherRole = rolesData.find(
+                    role => String(role.id) !== String(currentRoleId)
+                );
+
+                return String(
+                    (otherRole || rolesData[0])?.id ?? ""
+                );
+
+            });
+
+        } catch (err) {
+
+            console.error("Failed to fetch role menus:", err);
+
+            setError(
+                err.response?.data?.message ||
+                err.response?.data?.title ||
+                "Failed to load role menu information."
             );
 
-            if (stillExists) {
-                return previousId;
-            }
+        } finally {
 
-            const currentRoleId = myMenusData[0]?.roleId;
+            setRoleMenuLoading(false);
 
-            const otherRole = rolesData.find(
-                role => String(role.id) !== String(currentRoleId)
-            );
+        }
 
-            return String(
-                (otherRole || rolesData[0])?.id ?? ""
-            );
-
-        });
-
-    } catch (err) {
-
-        console.error("Failed to fetch role menus:", err);
-
-        setError(
-            err.response?.data?.message ||
-            err.response?.data?.title ||
-            "Failed to load role menu information."
-        );
-
-    } finally {
-
-        setRoleMenuLoading(false);
-
-    }
-
-}, []);
+    }, []);
 
 
     // =========================
@@ -270,10 +299,14 @@ const fetchRoleMenuData = useCallback(async () => {
     useEffect(() => {
 
         fetchAllMenus();
-
         fetchRoleMenuData();
+        fetchPermissions();
 
-    }, [fetchAllMenus, fetchRoleMenuData]);
+    }, [
+        fetchAllMenus,
+        fetchRoleMenuData,
+        fetchPermissions
+    ]);
 
 
     useEffect(() => {
@@ -287,7 +320,7 @@ const fetchRoleMenuData = useCallback(async () => {
     // SELECTED ROLE ASSIGNMENTS
     // =========================
 
-    const assignedRoleMenus = useMemo(() => {
+    const   assignedRoleMenus = useMemo(() => {
 
         return roleMenus.filter(roleMenu =>
 
@@ -328,12 +361,28 @@ const fetchRoleMenuData = useCallback(async () => {
         return roles.map(role => ({
 
             value: String(role.id),
-
             label: role.roleName
 
         }));
 
     }, [roles]);
+
+
+    // =========================
+    // PERMISSION OPTIONS
+    // =========================
+
+    const permissionOptions = useMemo(() => {
+
+        return permissions.map(permission => ({
+
+            value: String(permission.permissionId),
+
+            label: `${permission.permissionName} (${permission.permissionCode})`
+
+        }));
+
+    }, [permissions]);
 
 
     // =========================
@@ -382,15 +431,12 @@ const fetchRoleMenuData = useCallback(async () => {
 
             let assignedCount = 0;
 
-            // Individual POST requests because there is no bulk endpoint
             for (const menuId of selectedMenuIds) {
 
                 await roleMenuService.createRoleMenuById({
 
                     roleId: Number(selectedRoleId),
-
                     menuId: Number(menuId),
-
                     isActive: true
 
                 });
@@ -417,7 +463,6 @@ const fetchRoleMenuData = useCallback(async () => {
                 "Failed to assign menus. Some assignments may already have been saved."
             );
 
-            // Refresh to reflect any successful requests
             await fetchRoleMenuData();
 
         } finally {
@@ -436,7 +481,6 @@ const fetchRoleMenuData = useCallback(async () => {
     const handleRoleMenuDeleteClick = (roleMenu) => {
 
         setRoleMenuToDelete(roleMenu);
-
         setIsRoleMenuDeleteOpen(true);
 
     };
@@ -554,7 +598,6 @@ const fetchRoleMenuData = useCallback(async () => {
             .map(menu => ({
 
                 value: String(menu.menuId),
-
                 label: menu.menuName
 
             }));
@@ -609,12 +652,22 @@ const fetchRoleMenuData = useCallback(async () => {
         },
 
         {
+            name: "permissionId",
+            label: "Required Permission",
+            type: "select",
+            options: [
+                { value: "", label: "No Permission" },
+                ...permissionOptions
+            ]
+        },
+
+        {
             name: "isActive",
             label: "Active",
             type: "checkbox"
         }
 
-    ], [parentMenuOptions]);
+    ], [parentMenuOptions, permissionOptions]);
 
 
     // =========================
@@ -646,8 +699,11 @@ const fetchRoleMenuData = useCallback(async () => {
                 ? String(menu.parentMenuId)
                 : "",
 
-            sortOrder: menu.sortOrder ?? 0,
+            permissionId: menu.permissionId
+                ? String(menu.permissionId)
+                : "",
 
+            sortOrder: menu.sortOrder ?? 0,
             isActive: menu.isActive ?? true
 
         });
@@ -685,6 +741,10 @@ const fetchRoleMenuData = useCallback(async () => {
                 icon: formData.icon?.trim() || null,
 
                 sortOrder: Number(formData.sortOrder) || 0,
+
+                permissionId: formData.permissionId
+                    ? Number(formData.permissionId)
+                    : null,
 
                 isActive: Boolean(formData.isActive)
 
@@ -750,7 +810,6 @@ const fetchRoleMenuData = useCallback(async () => {
     const handleDeleteClick = (menu) => {
 
         setMenuToDelete(menu);
-
         setIsDeleteOpen(true);
 
     };
@@ -814,16 +873,27 @@ const fetchRoleMenuData = useCallback(async () => {
             render: (menu) => menu.menuPath || "-"
         },
 
-        // {
-        //     key: "icon",
-        //     label: "Icon",
-        //     render: (menu) => menu.icon || "-"
-        // },
+        {
+            key: "permissionCode",
+            label: "Required Permission",
+            render: (menu) => (
 
-        // {
-        //     key: "sortOrder",
-        //     label: "Sort Order"
-        // },
+                menu.permissionCode ? (
+
+                    <span className="px-2.5 py-1 text-xs font-medium rounded-md bg-blue-50 text-blue-700">
+                        {menu.permissionCode}
+                    </span>
+
+                ) : (
+
+                    <span className="text-slate-400 text-sm">
+                        None
+                    </span>
+
+                )
+
+            )
+        },
 
         {
             key: "isActive",
@@ -947,9 +1017,7 @@ const fetchRoleMenuData = useCallback(async () => {
             )}
 
 
-            {/* ================================= */}
-            {/* SECTION 1: MY ROLE MENUS */}
-            {/* ================================= */}
+            {/* SECTION 1: MY ROLE MENUS
 
             <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-5">
 
@@ -997,19 +1065,15 @@ const fetchRoleMenuData = useCallback(async () => {
                 ) : (
 
                     <div className="border border-slate-100 rounded-lg px-4">
-
                         {renderMyMenus(myMenus)}
-
                     </div>
 
                 )}
 
-            </div>
+            </div> */}
 
 
-            {/* ================================= */}
             {/* SECTION 2: MANAGE ROLE MENUS */}
-            {/* ================================= */}
 
             <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-5">
 
@@ -1246,9 +1310,7 @@ const fetchRoleMenuData = useCallback(async () => {
             </div>
 
 
-            {/* ================================= */}
-            {/* SECTION 3: EXISTING MENU FILTERS */}
-            {/* ================================= */}
+            {/* SECTION 3: MENU FILTERS */}
 
             <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
 
@@ -1329,9 +1391,7 @@ const fetchRoleMenuData = useCallback(async () => {
             </div>
 
 
-            {/* ================================= */}
-            {/* EXISTING MENU TABLE */}
-            {/* ================================= */}
+            {/* MENU TABLE */}
 
             <div className="bg-white rounded-xl border border-slate-200 shadow-sm">
 
@@ -1360,14 +1420,11 @@ const fetchRoleMenuData = useCallback(async () => {
                     setPageNumber(1);
 
                 }}
-
                 loading={loading}
             />
 
 
-            {/* ================================= */}
             {/* CREATE / EDIT MODAL */}
-            {/* ================================= */}
 
             <Modal
                 isOpen={isModalOpen}
@@ -1380,35 +1437,44 @@ const fetchRoleMenuData = useCallback(async () => {
                 title={selectedMenu ? "Edit Menu" : "Add Menu"}
             >
 
-                <GenericForm
-                    fields={formFields}
-                    initialData={selectedMenu || {
+                {permissionsLoading ? (
 
-                        menuName: "",
-                        parentMenuId: "",
-                        menuPath: "",
-                        icon: "",
-                        sortOrder: 0,
-                        isActive: true
+                    <div className="py-8 text-center text-sm text-slate-500">
+                        Loading permissions...
+                    </div>
 
-                    }}
-                    onSubmit={handleSubmit}
-                    onCancel={() => {
+                ) : (
 
-                        setIsModalOpen(false);
-                        setSelectedMenu(null);
+                    <GenericForm
+                        fields={formFields}
+                        initialData={selectedMenu || {
 
-                    }}
-                    submitLabel={selectedMenu ? "Update Menu" : "Create Menu"}
-                    loading={saving}
-                />
+                            menuName: "",
+                            parentMenuId: "",
+                            menuPath: "",
+                            icon: "",
+                            sortOrder: 0,
+                            permissionId: "",
+                            isActive: true
+
+                        }}
+                        onSubmit={handleSubmit}
+                        onCancel={() => {
+
+                            setIsModalOpen(false);
+                            setSelectedMenu(null);
+
+                        }}
+                        submitText={selectedMenu ? "Update Menu" : "Create Menu"}
+                        saving={saving}
+                    />
+
+                )}
 
             </Modal>
 
 
-            {/* ================================= */}
             {/* DELETE MENU CONFIRMATION */}
-            {/* ================================= */}
 
             <ConfirmDialogue
                 isOpen={isDeleteOpen}
@@ -1426,9 +1492,7 @@ const fetchRoleMenuData = useCallback(async () => {
             />
 
 
-            {/* ================================= */}
             {/* REMOVE ROLE MENU CONFIRMATION */}
-            {/* ================================= */}
 
             <ConfirmDialogue
                 isOpen={isRoleMenuDeleteOpen}
@@ -1452,4 +1516,3 @@ const fetchRoleMenuData = useCallback(async () => {
 }
 
 export default Menu;
-

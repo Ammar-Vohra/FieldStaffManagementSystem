@@ -15,11 +15,13 @@ namespace FieldStaff.Application.Features.Menus
             _repository = repository;
         }
 
+        // CREATE MENU
         public async Task<MenuResponseDto> CreateAsync(
             CreateMenuRequestDto request,
             int? createdByUserId)
         {
             await ValidateMenuAsync(request.ParentMenuId, request.MenuPath);
+            await ValidatePermissionAsync(request.PermissionId);
 
             var menu = new Menu
             {
@@ -28,6 +30,7 @@ namespace FieldStaff.Application.Features.Menus
                 MenuPath = NormalizePath(request.MenuPath),
                 Icon = request.Icon,
                 SortOrder = request.SortOrder,
+                PermissionId = request.PermissionId,
                 IsActive = request.IsActive,
                 IsDeleted = false,
                 CreatedBy = createdByUserId,
@@ -37,17 +40,13 @@ namespace FieldStaff.Application.Features.Menus
             await _repository.AddAsync(menu);
             await _repository.SaveChangesAsync();
 
-            Menu? parentMenu = null;
+            // Reload menu to retrieve Permission navigation property.
+            var savedMenu = await _repository.GetByIdAsync(menu.MenuId);
 
-            if (menu.ParentMenuId.HasValue)
-            {
-                parentMenu = await _repository.GetByIdAsync(
-                    menu.ParentMenuId.Value);
-            }
-
-            return MapToResponse(menu, parentMenu);
+            return MapToResponse(savedMenu!, savedMenu!.ParentMenu);
         }
 
+        // GET MENU BY ID
         public async Task<MenuResponseDto?> GetByIdAsync(int menuId)
         {
             var menu = await _repository.GetByIdAsync(menuId);
@@ -58,6 +57,7 @@ namespace FieldStaff.Application.Features.Menus
             return MapToResponse(menu, menu.ParentMenu);
         }
 
+        // GET ALL MENUS
         public async Task<List<MenuResponseDto>> GetAllAsync()
         {
             var menus = await _repository.GetAllAsync();
@@ -67,10 +67,10 @@ namespace FieldStaff.Application.Features.Menus
                 .ToList();
         }
 
+        // GET PAGINATED MENUS
         public async Task<PaginatedResponse<MenuResponseDto>> GetPagedMenusAsync(
             MenuQueryParameters parameters)
         {
-
             if (parameters.PageNumber < 1)
             {
                 throw new InvalidOperationException(
@@ -83,7 +83,6 @@ namespace FieldStaff.Application.Features.Menus
                     "Page size must be between 1 and 100.");
             }
 
-           
             var allowedSortColumns = new[]
             {
                 "menuname",
@@ -102,7 +101,6 @@ namespace FieldStaff.Application.Features.Menus
                     "Invalid sorting column.");
             }
 
-      
             if (!parameters.SortDirection.Equals(
                 "asc",
                 StringComparison.OrdinalIgnoreCase) &&
@@ -114,24 +112,19 @@ namespace FieldStaff.Application.Features.Menus
                     "Sort direction must be either 'asc' or 'desc'.");
             }
 
-         
             parameters.SortBy = parameters.SortBy.ToLowerInvariant();
             parameters.SortDirection = parameters.SortDirection.ToLowerInvariant();
 
-           
             var (menus, totalRecords) =
                 await _repository.GetPagedAsync(parameters);
 
-            
             int totalPages = (int)Math.Ceiling(
                 (double)totalRecords / parameters.PageSize);
 
-            
             var menuDtos = menus.Select(menu =>
-                MapToResponse(menu, menu.ParentMenu)
-            ).ToList();
+                MapToResponse(menu, menu.ParentMenu))
+                .ToList();
 
-         
             return new PaginatedResponse<MenuResponseDto>
             {
                 Data = menuDtos,
@@ -144,6 +137,7 @@ namespace FieldStaff.Application.Features.Menus
             };
         }
 
+        // UPDATE MENU
         public async Task<MenuResponseDto?> UpdateAsync(
             int menuId,
             UpdateMenuRequestDto request,
@@ -153,6 +147,8 @@ namespace FieldStaff.Application.Features.Menus
 
             if (menu == null)
                 return null;
+
+            await ValidatePermissionAsync(request.PermissionId);
 
             bool hasChildren = await _repository.HasChildMenusAsync(menuId);
 
@@ -171,6 +167,7 @@ namespace FieldStaff.Application.Features.Menus
             menu.MenuPath = NormalizePath(request.MenuPath);
             menu.Icon = request.Icon;
             menu.SortOrder = request.SortOrder;
+            menu.PermissionId = request.PermissionId;
             menu.IsActive = request.IsActive;
             menu.UpdatedBy = updatedByUserId;
             menu.UpdatedAt = DateTime.UtcNow;
@@ -178,17 +175,13 @@ namespace FieldStaff.Application.Features.Menus
             await _repository.UpdateAsync(menu);
             await _repository.SaveChangesAsync();
 
-            Menu? parentMenu = null;
+            // Reload to retrieve updated Permission navigation property.
+            var updatedMenu = await _repository.GetByIdAsync(menuId);
 
-            if (menu.ParentMenuId.HasValue)
-            {
-                parentMenu = await _repository.GetByIdAsync(
-                    menu.ParentMenuId.Value);
-            }
-
-            return MapToResponse(menu, parentMenu);
+            return MapToResponse(updatedMenu!, updatedMenu!.ParentMenu);
         }
 
+        // DELETE MENU
         public async Task<bool> DeleteAsync(
             int menuId,
             int? deletedByUserId)
@@ -217,6 +210,24 @@ namespace FieldStaff.Application.Features.Menus
             return true;
         }
 
+        // VALIDATE PERMISSION
+        private async Task ValidatePermissionAsync(int? permissionId)
+        {
+            // Parent/container menus can have no permission.
+            if (!permissionId.HasValue)
+                return;
+
+            bool permissionExists =
+                await _repository.PermissionExistsAsync(permissionId.Value);
+
+            if (!permissionExists)
+            {
+                throw new InvalidOperationException(
+                    "The selected permission does not exist or is inactive.");
+            }
+        }
+
+        // VALIDATE MENU
         private async Task ValidateMenuAsync(
             int? parentMenuId,
             string? menuPath)
@@ -238,7 +249,6 @@ namespace FieldStaff.Application.Features.Menus
                         "Cannot assign an inactive menu as a parent.");
                 }
 
-                // Only root-level containers can have children
                 if (parentMenu.ParentMenuId.HasValue ||
                     !string.IsNullOrWhiteSpace(parentMenu.MenuPath))
                 {
@@ -254,6 +264,7 @@ namespace FieldStaff.Application.Features.Menus
             }
         }
 
+        // NORMALIZE PATH
         private static string? NormalizePath(string? menuPath)
         {
             return string.IsNullOrWhiteSpace(menuPath)
@@ -261,6 +272,7 @@ namespace FieldStaff.Application.Features.Menus
                 : menuPath.Trim();
         }
 
+        // MAP ENTITY TO DTO
         private static MenuResponseDto MapToResponse(
             Menu menu,
             Menu? parentMenu)
@@ -274,6 +286,8 @@ namespace FieldStaff.Application.Features.Menus
                 MenuPath = menu.MenuPath,
                 Icon = menu.Icon,
                 SortOrder = menu.SortOrder,
+                PermissionId = menu.PermissionId,
+                PermissionCode = menu.Permission?.PermissionCode,
                 IsActive = menu.IsActive
             };
         }

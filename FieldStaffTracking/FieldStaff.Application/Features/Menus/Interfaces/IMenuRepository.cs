@@ -18,6 +18,7 @@ namespace FieldStaff.Application.Features.Menus.Interfaces
         Task<List<Menu>> GetChildMenusAsync(int parentMenuId);
         Task<bool> HasChildMenusAsync(int menuId);
         Task<bool> ExistsAsync(int menuId);
+        Task<bool> PermissionExistsAsync(int permissionId);
         Task AddAsync(Menu menu);
         Task UpdateAsync(Menu menu);
         Task SaveChangesAsync();

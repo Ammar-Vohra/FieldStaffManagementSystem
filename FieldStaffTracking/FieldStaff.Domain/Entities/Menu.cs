@@ -18,6 +18,9 @@ namespace FieldStaff.Domain.Entities
 
         public Menu? ParentMenu { get; set; }
 
+        public int? PermissionId { get; set; }
+        public Permission? Permission { get; set; }
+
         public ICollection<Menu> ChildMenus { get; set; }
             = new List<Menu>();
 

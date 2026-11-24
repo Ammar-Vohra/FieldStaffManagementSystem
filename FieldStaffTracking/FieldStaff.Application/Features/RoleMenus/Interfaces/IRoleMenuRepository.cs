@@ -14,6 +14,7 @@ namespace FieldStaff.Application.Features.RoleMenus.Interfaces
         Task<RoleMenu?> GetByIdAsync(int roleMenuId);
 
         Task<List<RoleMenu>> GetAllAsync();
+        Task<List<RoleMenu>> GetAllAssignmentsByRoleIdAsync(int roleId);
 
         Task<List<RoleMenu>> GetByRoleIdAsync(int roleId);
 

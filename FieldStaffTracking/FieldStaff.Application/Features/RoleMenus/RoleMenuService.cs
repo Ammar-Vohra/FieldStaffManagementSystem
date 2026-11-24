@@ -51,6 +51,7 @@ namespace FieldStaff.Application.Features.RoleMenus
             {
                 RoleId = request.RoleId,
                 MenuId = request.MenuId,
+                
                 IsActive = true,
                 IsDeleted = false,
                 CreatedBy = addedByUserId,
@@ -105,6 +106,8 @@ namespace FieldStaff.Application.Features.RoleMenus
                 Icon = rm.Menu.Icon,
                 MenuName = rm.Menu.MenuName,
                 MenuPath = rm.Menu.MenuPath,
+                PermissionId = rm.Menu.PermissionId,
+                PermissionCode = rm.Menu.Permission?.PermissionCode,   
                 IsActive = rm.IsActive
             }).ToList();
 
@@ -239,6 +242,8 @@ namespace FieldStaff.Application.Features.RoleMenus
                 MenuName = menuName,
                 Icon = roleMenu.Menu?.Icon,
                 MenuPath = roleMenu.Menu?.MenuPath,
+                PermissionId = roleMenu.Menu?.PermissionId,
+                PermissionCode = roleMenu.Menu?.Permission?.PermissionCode,
                 IsActive = roleMenu.IsActive
             };
         }

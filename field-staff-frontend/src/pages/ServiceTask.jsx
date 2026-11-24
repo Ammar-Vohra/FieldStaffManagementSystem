@@ -234,7 +234,7 @@ function ServiceTasks() {
     }));
 
   const activeStaffOptions = users
-    .filter((u) => u.isActive !== false)
+    .filter((u) => u.isActive !== false && u.roleId === 3)
     .map((u) => ({
       value: String(u.userId),
       label: `${u.userName}${u.roleName ? ` (${u.roleName})` : ""}`,
@@ -598,7 +598,9 @@ function ServiceTasks() {
               setPageNumber(1);
             }}
             placeholder="All Staff"
-            options={users.map((u) => ({
+            options={users
+              .filter((u) => u.roleId === 3)
+              .map((u) => ({
               value: String(u.userId),
               label: u.userName,
             }))}

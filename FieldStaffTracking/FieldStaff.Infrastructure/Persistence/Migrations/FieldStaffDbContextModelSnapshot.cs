@@ -156,6 +156,9 @@ namespace FieldStaff.Infrastructure.Persistence.Migrations
                     b.Property<int?>("ParentMenuId")
                         .HasColumnType("int");
 
+                    b.Property<int?>("PermissionId")
+                        .HasColumnType("int");
+
                     b.Property<int>("SortOrder")
                         .HasColumnType("int");
 
@@ -170,6 +173,8 @@ namespace FieldStaff.Infrastructure.Persistence.Migrations
                     b.HasIndex("CreatedBy");
 
                     b.HasIndex("ParentMenuId");
+
+                    b.HasIndex("PermissionId");
 
                     b.HasIndex("UpdatedBy");
 
@@ -777,12 +782,19 @@ namespace FieldStaff.Infrastructure.Persistence.Migrations
                         .HasForeignKey("ParentMenuId")
                         .OnDelete(DeleteBehavior.Restrict);
 
+                    b.HasOne("FieldStaff.Domain.Entities.Permission", "Permission")
+                        .WithMany()
+                        .HasForeignKey("PermissionId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("FieldStaff.Domain.Entities.User", null)
                         .WithMany()
                         .HasForeignKey("UpdatedBy")
                         .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("ParentMenu");
+
+                    b.Navigation("Permission");
                 });
 
             modelBuilder.Entity("FieldStaff.Domain.Entities.Permission", b =>

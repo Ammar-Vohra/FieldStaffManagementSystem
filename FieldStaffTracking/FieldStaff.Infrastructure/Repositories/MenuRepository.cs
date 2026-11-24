@@ -19,6 +19,7 @@ namespace FieldStaff.Infrastructure.Repositories
         public async Task<Menu?> GetByIdAsync(int menuId)
         {
             return await _context.Menus
+                .Include(m => m.Permission)
                 .Include(m => m.ParentMenu)
                 .FirstOrDefaultAsync(m => m.MenuId == menuId && !m.IsDeleted);
         }
@@ -28,17 +29,29 @@ namespace FieldStaff.Infrastructure.Repositories
             return await _context.Menus
                 .AsNoTracking()
                 .Include(m => m.ParentMenu)
+                .Include(m => m.Permission)
                 .Where(m => !m.IsDeleted)
                 .OrderBy(m => m.SortOrder)
                 .ThenBy(m => m.MenuName)
                 .ToListAsync();
         }
 
+
+        public async Task<bool> PermissionExistsAsync(int permissionId)
+        {
+            return await _context.Permissions.AnyAsync(p =>
+                p.PermissionId == permissionId &&
+                p.IsActive &&
+                !p.IsDeleted);
+        }
+
+
         public async Task<(List<Menu> Menus, int TotalRecords)> GetPagedAsync(MenuQueryParameters parameters)
         {
             IQueryable<Menu> query = _context.Menus
                 .AsNoTracking()
                 .Include(m => m.ParentMenu)
+                .Include(m => m.Permission)
                 .Where(m => !m.IsDeleted);
 
             // Search
@@ -122,6 +135,7 @@ namespace FieldStaff.Infrastructure.Repositories
         {
             return await _context.Menus
                 .AsNoTracking()
+                .Include(m => m.Permission)
                 .Where(m =>
                     m.ParentMenuId == parentMenuId &&
                     !m.IsDeleted)

@@ -51,6 +51,16 @@ namespace FieldStaff.Infrastructure.Persistence
                 typeof(FieldStaffDbContext).Assembly
             );
 
+            // =========================================
+            // MENU-PERMISSION RELATIONSHIP
+            // =========================================
+
+            modelBuilder.Entity<Menu>()
+                .HasOne(m => m.Permission)
+                .WithMany()
+                .HasForeignKey(m => m.PermissionId)
+                .OnDelete(DeleteBehavior.Restrict);
+
 
             // =========================================
             // BASE ENTITY AUDIT RELATIONSHIPS
