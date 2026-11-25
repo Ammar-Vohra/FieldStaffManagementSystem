@@ -117,7 +117,15 @@ namespace FieldStaff.Infrastructure.Repositories
             return (users, totalRecords);
         }
 
-
+        public async Task<User?> GetActiveAdminAsync()
+        {
+            return await _context.Users
+                .Include(u => u.Role)
+                .FirstOrDefaultAsync(u =>
+                u.Role.RoleName == "Admin" &&
+                u.IsActive &&
+                !u.IsDeleted);
+        }
         public async Task<bool> EmailExistsAsync(
             string email,
             int? excludeUserId = null)

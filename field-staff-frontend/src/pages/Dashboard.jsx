@@ -10,6 +10,7 @@ import RecentTasks from "../components/dashboard/RecentTasks";
 import StaffWorkload from "../components/dashboard/StaffWorkload";
 import RecentActivities from "../components/dashboard/RecentActivities";
 import FieldStaffTaskSection from "../components/dashboard/FieldStaffTaskSection";
+import StatusBadge from "../components/common/StatusBadge";
 
 function Dashboard() {
     const [summary, setSummary] = useState(null);

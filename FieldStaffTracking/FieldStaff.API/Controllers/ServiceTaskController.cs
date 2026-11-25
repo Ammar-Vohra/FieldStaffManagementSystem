@@ -3,6 +3,7 @@ using FieldStaff.API.Authorization.Attributes;
 using FieldStaff.Application.Features.ServiceTasks.DTOs;
 using FieldStaff.Application.Features.ServiceTasks.Interfaces;
 using FieldStaff.Application.Features.TaskStatusHistories.DTOs;
+using FieldStaff.Application.Features.TaskAssignmentHistories.DTOs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -75,7 +76,7 @@ namespace FieldStaff.API.Controllers
         [HttpGet("{id:int}")]
         public async Task<IActionResult> GetServiceTaskById(int id)
         {
-            var result = await _serviceTaskService.GetServiceTaskByIdAsync(id);
+            var result = await _serviceTaskService.GetServiceTaskHistoryDetailsAsync(id);
 
             if (result == null)
             {
@@ -118,6 +119,30 @@ namespace FieldStaff.API.Controllers
                         message = "Service task not found."
                     });
                 }
+
+                return Ok(result);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HasPermission("TASK_UPDATE")]
+        [HttpPut("{id:int}/assign")]
+        public async Task<IActionResult> ReassignServiceTask(
+            int id,
+            [FromBody] ReassignServiceTaskRequestDto request)
+        {
+            var userId = GetCurrentUserId();
+            if (!userId.HasValue)
+                return Unauthorized(new { message = "Unable to identify the logged-in user." });
+
+            try
+            {
+                var result = await _serviceTaskService.ReassignServiceTaskAsync(id, request, userId.Value);
+                if (result == null)
+                    return NotFound(new { message = "Service task not found." });
 
                 return Ok(result);
             }

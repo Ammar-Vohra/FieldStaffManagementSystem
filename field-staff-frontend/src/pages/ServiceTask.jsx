@@ -53,6 +53,11 @@ const getPriorityBadgeClass = (priorityName = "") => {
   return "bg-slate-100 text-slate-700";
 };
 
+const isFieldStaffUser = (user) => {
+  const roleName = String(user.roleName ?? user.RoleName ?? "").replace(/[\s_-]/g, "").toLowerCase();
+  return roleName ? roleName === "fieldstaff" : Number(user.roleId ?? user.RoleId) === 3;
+};
+
 function ServiceTasks() {
   // Data and lookups
   const [tasks, setTasks] = useState([]);
@@ -74,6 +79,11 @@ function ServiceTasks() {
   const [showModal, setShowModal] = useState(false);
   const [showViewModal, setShowViewModal] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [showAssignmentModal, setShowAssignmentModal] = useState(false);
+  const [assigning, setAssigning] = useState(false);
+  const [assignmentStaffId, setAssignmentStaffId] = useState("");
+  const [assignmentRemarks, setAssignmentRemarks] = useState("");
+  const [assignmentError, setAssignmentError] = useState("");
 
   // Selected task
   const [selectedTask, setSelectedTask] = useState(null);
@@ -200,9 +210,56 @@ function ServiceTasks() {
     setShowModal(true);
   };
 
-  const handleView = (task) => {
+  const handleView = async (task) => {
     setSelectedTask(task);
     setShowViewModal(true);
+    try {
+      const details = await serviceTaskService.getServiceTaskById(task.serviceTaskId);
+      setSelectedTask(details);
+    } catch (err) {
+      setError(err.response?.data?.message || "Unable to load task history.");
+    }
+  };
+
+  const handleOpenAssignment = (task) => {
+    setSelectedTask(task);
+    setAssignmentStaffId("");
+    setAssignmentRemarks("");
+    setAssignmentError("");
+    setShowAssignmentModal(true);
+  };
+
+  const handleReassign = async (event) => {
+    event.preventDefault();
+    if (!selectedTask || !assignmentStaffId) {
+      setAssignmentError("Select a field staff member.");
+      return;
+    }
+
+    try {
+      setAssigning(true);
+      setAssignmentError("");
+      await serviceTaskService.reassignServiceTask(selectedTask.serviceTaskId, {
+        newAssignedStaffId: Number(assignmentStaffId),
+        remarks: assignmentRemarks.trim() || null,
+      });
+      setShowAssignmentModal(false);
+      setSuccess("Task reassigned successfully.");
+      setSelectedTask(null);
+      await fetchServiceTasks();
+    } catch (err) {
+      const status = err.response?.status;
+      const fallback = status === 403
+        ? "Your account does not have permission to reassign tasks."
+        : status === 401
+          ? "Your session has expired. Please sign in again."
+          : status
+            ? `Unable to reassign task (HTTP ${status}). Please try again or contact an administrator.`
+            : "Unable to reach the server. Check your connection and try again.";
+      setAssignmentError(err.response?.data?.message || err.response?.data?.title || fallback);
+    } finally {
+      setAssigning(false);
+    }
   };
 
   const handleCloseModal = () => {
@@ -234,7 +291,7 @@ function ServiceTasks() {
     }));
 
   const activeStaffOptions = users
-    .filter((u) => u.isActive !== false && u.roleId === 3)
+    .filter((u) => u.isActive !== false && isFieldStaffUser(u))
     .map((u) => ({
       value: String(u.userId),
       label: `${u.userName}${u.roleName ? ` (${u.roleName})` : ""}`,
@@ -471,9 +528,7 @@ function ServiceTasks() {
       key: "taskStatusName",
       label: "Task Status",
       render: (task) => (
-        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-700">
-          {task.taskStatusName}
-        </span>
+        <StatusBadge status={task.taskStatusName} />
       ),
     },
     {
@@ -509,6 +564,13 @@ function ServiceTasks() {
             className="px-3 py-1.5 text-sm font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg transition"
           >
             View
+          </button>
+
+          <button
+            onClick={() => handleOpenAssignment(task)}
+            className="px-3 py-1.5 text-sm font-medium text-indigo-700 bg-indigo-100 hover:bg-indigo-200 rounded-lg transition"
+          >
+            Reassign
           </button>
 
           <button
@@ -599,7 +661,7 @@ function ServiceTasks() {
             }}
             placeholder="All Staff"
             options={users
-              .filter((u) => u.roleId === 3)
+              .filter((u) => isFieldStaffUser(u))
               .map((u) => ({
               value: String(u.userId),
               label: u.userName,
@@ -819,6 +881,26 @@ function ServiceTasks() {
               </div>
             )}
 
+            <div className="pt-2 border-t border-slate-100">
+              <p className="mb-2 font-semibold text-slate-800">Assignment History</p>
+              {(selectedTask.assignmentHistory || []).length ? (
+                <div className="space-y-2">
+                  {selectedTask.assignmentHistory.map((entry) => (
+                    <div key={entry.taskAssignmentHistoryId} className="rounded-lg bg-slate-50 px-3 py-2">
+                      <p className="font-medium text-slate-800">
+                        {entry.oldAssignedStaffName || "Unassigned"} → {entry.newAssignedStaffName}
+                      </p>
+                      <p className="text-xs text-slate-500">
+                        {formatDisplayDate(entry.createdAt)}{entry.remarks ? ` · ${entry.remarks}` : ""}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-sm text-slate-500">No assignment history recorded.</p>
+              )}
+            </div>
+
             <div className="flex justify-end pt-4 border-t border-slate-100">
               <button
                 type="button"
@@ -833,6 +915,77 @@ function ServiceTasks() {
             </div>
           </div>
         )}
+      </Modal>
+
+      <Modal
+        isOpen={showAssignmentModal}
+        onClose={() => {
+          if (!assigning) {
+            setShowAssignmentModal(false);
+            setSelectedTask(null);
+          }
+        }}
+        title="Reassign Service Task"
+        size="md"
+      >
+        <form onSubmit={handleReassign} className="space-y-5">
+          <div>
+            <p className="text-sm text-slate-500">Task</p>
+            <p className="font-semibold text-slate-800">{selectedTask?.title}</p>
+            <p className="mt-1 text-sm text-slate-500">
+              Currently assigned to {selectedTask?.assignedStaffName || "-"}
+            </p>
+          </div>
+
+          <div>
+            <label htmlFor="reassignment-staff" className="block text-sm font-medium text-slate-700 mb-1">
+              New field staff member
+            </label>
+            <select
+              id="reassignment-staff"
+              required
+              value={assignmentStaffId}
+              onChange={(event) => setAssignmentStaffId(event.target.value)}
+              className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="">Select field staff</option>
+              {users
+                .filter((user) => user.isActive !== false && user.isDeleted !== true && isFieldStaffUser(user) && user.userId !== selectedTask?.assignedStaffId)
+                .map((user) => (
+                  <option key={user.userId} value={user.userId}>{user.userName}</option>
+                ))}
+            </select>
+            {users.filter((user) => user.isActive !== false && user.isDeleted !== true && isFieldStaffUser(user) && user.userId !== selectedTask?.assignedStaffId).length === 0 && (
+              <p className="mt-1 text-xs text-amber-700">No other active field staff members are available.</p>
+            )}
+          </div>
+
+          <div>
+            <label htmlFor="reassignment-remarks" className="block text-sm font-medium text-slate-700 mb-1">
+              Reason or notes <span className="font-normal text-slate-500">(optional)</span>
+            </label>
+            <textarea
+              id="reassignment-remarks"
+              rows={3}
+              maxLength={500}
+              value={assignmentRemarks}
+              onChange={(event) => setAssignmentRemarks(event.target.value)}
+              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Add a note to the assignment history"
+            />
+          </div>
+
+          {assignmentError && <p role="alert" className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{assignmentError}</p>}
+
+          <div className="flex justify-end gap-3 border-t border-slate-100 pt-4">
+            <button type="button" disabled={assigning} onClick={() => setShowAssignmentModal(false)} className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-60">
+              Cancel
+            </button>
+            <button type="submit" disabled={assigning || !assignmentStaffId} className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60">
+              {assigning ? "Reassigning..." : "Reassign Task"}
+            </button>
+          </div>
+        </form>
       </Modal>
 
       {/* Delete Confirmation Dialog */}

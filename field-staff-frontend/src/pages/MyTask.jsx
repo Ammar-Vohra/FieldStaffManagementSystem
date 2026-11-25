@@ -3,15 +3,21 @@ import { useEffect, useState } from "react";
 
 import serviceTaskService from "../services/serviceTaskService";
 import taskStatusService from "../services/taskStatusService";
+import taskPriorityService from "../services/taskPriorityService";
 
 import DataTable from "../components/common/DataTable";
 import Modal from "../components/common/Modal";
 import StatusBadge from "../components/common/StatusBadge";
 import Pagination from "../components/data-display/Pagination";
+import SearchInput from "../components/filters/SearchInput";
+import SelectFilter from "../components/filters/SelectFilter";
+import SortSelect from "../components/filters/SortSelect";
+import FormInput from "../components/common/FormInput";
 
 function MyTasks() {
   const [tasks, setTasks] = useState([]);
   const [statuses, setStatuses] = useState([]);
+  const [priorities, setPriorities] = useState([]);
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -22,6 +28,12 @@ function MyTasks() {
   const [pageNumber, setPageNumber] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
+  const [priorityFilter, setPriorityFilter] = useState("");
+  const [scheduledDateFrom, setScheduledDateFrom] = useState("");
+  const [scheduledDateTo, setScheduledDateTo] = useState("");
+  const [sortBy, setSortBy] = useState("scheduledDate");
+  const [sortDirection, setSortDirection] = useState("desc");
 
   const [totalRecords, setTotalRecords] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
@@ -37,8 +49,68 @@ function MyTasks() {
   const [newStatusId, setNewStatusId] = useState("");
   const [remarks, setRemarks] = useState("");
   const [completionNote, setCompletionNote] = useState("");
-
   const [updateError, setUpdateError] = useState("");
+
+  // Normalize status code/name
+  const normalizeStatus = (value) => {
+    return (value || "")
+      .trim()
+      .toUpperCase()
+      .replace(/\s+/g, "_");
+  };
+
+  // Get next allowed status
+  const getNextStatus = (task) => {
+    if (!task) return null;
+
+    const currentStatus = normalizeStatus(
+      task.taskStatusCode || task.taskStatusName
+    );
+
+    let nextStatusCode = null;
+
+    // Pending and Overdue tasks can both be started.
+    if (
+      currentStatus === "PENDING" ||
+      currentStatus === "OVERDUE"
+    ) {
+      nextStatusCode = "IN_PROGRESS";
+    } else if (currentStatus === "IN_PROGRESS") {
+      nextStatusCode = "COMPLETED";
+    }
+
+    if (!nextStatusCode) return null;
+
+    return (
+      statuses.find((status) => {
+        const statusCode = normalizeStatus(
+          status.taskStatusCode || status.taskStatusName
+        );
+
+        return statusCode === nextStatusCode;
+      }) || null
+    );
+  };
+
+  // Get next action button label
+  const getNextActionLabel = (task) => {
+    const currentStatus = normalizeStatus(
+      task?.taskStatusCode || task?.taskStatusName
+    );
+
+    if (
+      currentStatus === "PENDING" ||
+      currentStatus === "OVERDUE"
+    ) {
+      return "Start Task";
+    }
+
+    if (currentStatus === "IN_PROGRESS") {
+      return "Complete Task";
+    }
+
+    return "Update Status";
+  };
 
   // Load assigned tasks
   const fetchMyTasks = async () => {
@@ -50,8 +122,16 @@ function MyTasks() {
         pageNumber,
         pageSize,
         search,
-        sortBy: "scheduledDate",
-        sortDirection: "desc",
+        taskStatusId: statusFilter
+          ? Number(statusFilter)
+          : undefined,
+        taskPriorityId: priorityFilter
+          ? Number(priorityFilter)
+          : undefined,
+        scheduledDateFrom: scheduledDateFrom || undefined,
+        scheduledDateTo: scheduledDateTo || undefined,
+        sortBy,
+        sortDirection,
       });
 
       setTasks(response.data || []);
@@ -60,7 +140,7 @@ function MyTasks() {
     } catch (err) {
       setError(
         err.response?.data?.message ||
-        "Unable to load your assigned tasks."
+          "Unable to load your assigned tasks."
       );
     } finally {
       setLoading(false);
@@ -70,27 +150,65 @@ function MyTasks() {
   // Load available task statuses
   const fetchStatuses = async () => {
     try {
+      setStatusError("");
+
       const response = await taskStatusService.getAllTaskStatuses();
       setStatuses(response || []);
     } catch (err) {
       setStatusError(
         err.response?.data?.message ||
-        "Unable to load task statuses."
+          "Unable to load task statuses."
+      );
+    }
+  };
+
+  // Load available task priorities
+  const fetchPriorities = async () => {
+    try {
+      const response = await taskPriorityService.getAllTaskPriorities();
+      setPriorities(response || []);
+    } catch (err) {
+      setStatusError(
+        err.response?.data?.message ||
+          "Unable to load task priorities."
       );
     }
   };
 
   useEffect(() => {
     fetchMyTasks();
-  }, [pageNumber, pageSize, search]);
+  }, [
+    pageNumber,
+    pageSize,
+    search,
+    statusFilter,
+    priorityFilter,
+    scheduledDateFrom,
+    scheduledDateTo,
+    sortBy,
+    sortDirection,
+  ]);
 
   useEffect(() => {
     fetchStatuses();
+    fetchPriorities();
   }, []);
 
   // Search
   const handleSearch = (e) => {
     setSearch(e.target.value);
+    setPageNumber(1);
+  };
+
+  // Reset filters
+  const handleResetFilters = () => {
+    setSearch("");
+    setStatusFilter("");
+    setPriorityFilter("");
+    setScheduledDateFrom("");
+    setScheduledDateTo("");
+    setSortBy("scheduledDate");
+    setSortDirection("desc");
     setPageNumber(1);
   };
 
@@ -119,7 +237,7 @@ function MyTasks() {
     } catch (err) {
       setDetailsError(
         err.response?.data?.message ||
-        "Unable to load task details."
+          "Unable to load task details."
       );
     } finally {
       setDetailsLoading(false);
@@ -130,9 +248,16 @@ function MyTasks() {
   const handleOpenUpdateModal = () => {
     if (!selectedTask) return;
 
-    setNewStatusId(String(selectedTask.taskStatusId));
+    const nextStatus = getNextStatus(selectedTask);
+
+    if (!nextStatus) {
+      setUpdateError("No further status update is available.");
+      return;
+    }
+
+    setNewStatusId(String(nextStatus.taskStatusId));
     setRemarks("");
-    setCompletionNote(selectedTask.completionNote || "");
+    setCompletionNote("");
     setUpdateError("");
     setShowUpdateModal(true);
   };
@@ -142,7 +267,31 @@ function MyTasks() {
     e.preventDefault();
 
     if (!newStatusId) {
-      setUpdateError("Please select a task status.");
+      setUpdateError("Unable to determine the next task status.");
+      return;
+    }
+
+    const targetStatus = statuses.find(
+      (status) => status.taskStatusId === Number(newStatusId)
+    );
+
+    if (!targetStatus) {
+      setUpdateError("Selected task status is invalid.");
+      return;
+    }
+
+    const targetStatusCode = normalizeStatus(
+      targetStatus.taskStatusCode || targetStatus.taskStatusName
+    );
+
+    // Validate completion note
+    if (
+      targetStatusCode === "COMPLETED" &&
+      !completionNote.trim()
+    ) {
+      setUpdateError(
+        "Completion note is required when completing a task."
+      );
       return;
     }
 
@@ -155,7 +304,10 @@ function MyTasks() {
         {
           newStatusId: Number(newStatusId),
           remarks: remarks.trim() || null,
-          completionNote: completionNote.trim() || null,
+          completionNote:
+            targetStatusCode === "COMPLETED"
+              ? completionNote.trim()
+              : null,
         }
       );
 
@@ -164,16 +316,25 @@ function MyTasks() {
 
       // Refresh task list
       await fetchMyTasks();
+
+      // Refresh task details and status history
+      const updatedDetails =
+        await serviceTaskService.getMyTaskDetails(
+          selectedTask.serviceTaskId
+        );
+
+      setSelectedTask(updatedDetails);
     } catch (err) {
       setUpdateError(
         err.response?.data?.message ||
-        "Unable to update task status."
+          "Unable to update task status."
       );
     } finally {
       setSaving(false);
     }
   };
 
+  // Format date
   const formatDate = (date) => {
     if (!date) return "-";
 
@@ -184,6 +345,7 @@ function MyTasks() {
     });
   };
 
+  // Format date and time
   const formatDateTime = (date) => {
     if (!date) return "-";
 
@@ -194,42 +356,6 @@ function MyTasks() {
       hour: "2-digit",
       minute: "2-digit",
     });
-  };
-
-  // Custom badge because shared StatusBadge only supports IsActive
-  const renderTaskStatus = (status) => {
-    const statusName = status || "Unknown";
-
-    const normalizedStatus = statusName.toLowerCase();
-
-    let styles = "bg-slate-100 text-slate-700";
-
-    if (
-      normalizedStatus.includes("complete") ||
-      normalizedStatus.includes("closed")
-    ) {
-      styles = "bg-green-100 text-green-700";
-    } else if (
-      normalizedStatus.includes("progress") ||
-      normalizedStatus.includes("started")
-    ) {
-      styles = "bg-blue-100 text-blue-700";
-    } else if (
-      normalizedStatus.includes("pending") ||
-      normalizedStatus.includes("assigned")
-    ) {
-      styles = "bg-amber-100 text-amber-700";
-    } else if (normalizedStatus.includes("cancel")) {
-      styles = "bg-red-100 text-red-700";
-    }
-
-    return (
-      <span
-        className={`inline-flex px-3 py-1 rounded-full text-xs font-medium ${styles}`}
-      >
-        {statusName}
-      </span>
-    );
   };
 
   // Main table columns
@@ -254,7 +380,9 @@ function MyTasks() {
     {
       key: "taskStatusName",
       label: "Status",
-      render: (row) => renderTaskStatus(row.taskStatusName),
+      render: (row) => (
+        <StatusBadge status={row.taskStatusName} />
+      ),
     },
     {
       key: "actions",
@@ -285,21 +413,114 @@ function MyTasks() {
         </p>
       </div>
 
-      {/* Search */}
-      <div className="bg-white border border-slate-200 rounded-xl p-4">
-        <input
-          type="text"
-          value={search}
-          onChange={handleSearch}
-          placeholder="Search tasks..."
-          className="w-full md:w-80 border border-slate-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
+      {/* Search, filters and sorting */}
+      <div className="bg-white border border-slate-200 rounded-xl p-4 md:p-5 space-y-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+          <SearchInput
+            label="Search Tasks"
+            value={search}
+            onChange={handleSearch}
+            placeholder="Search title, customer, or description..."
+          />
+
+          <SelectFilter
+            label="Status"
+            value={statusFilter}
+            onChange={(event) => {
+              setStatusFilter(event.target.value);
+              setPageNumber(1);
+            }}
+            placeholder="All statuses"
+            options={statuses
+              .filter((status) => status.isActive !== false)
+              .map((status) => ({
+                value: String(status.taskStatusId),
+                label: status.taskStatusName,
+              }))}
+          />
+
+          <SelectFilter
+            label="Priority"
+            value={priorityFilter}
+            onChange={(event) => {
+              setPriorityFilter(event.target.value);
+              setPageNumber(1);
+            }}
+            placeholder="All priorities"
+            options={priorities
+              .filter((priority) => priority.isActive !== false)
+              .map((priority) => ({
+                value: String(priority.taskPriorityId),
+                label: priority.taskPriorityName,
+              }))}
+          />
+
+          <SortSelect
+            label="Sort By"
+            value={`${sortBy}|${sortDirection}`}
+            onChange={(event) => {
+              const [field, direction] = event.target.value.split("|");
+              setSortBy(field);
+              setSortDirection(direction);
+              setPageNumber(1);
+            }}
+            options={[
+              { value: "scheduledDate|asc", label: "Schedule: soonest first" },
+              { value: "scheduledDate|desc", label: "Schedule: latest first" },
+              { value: "priority|asc", label: "Priority: A to Z" },
+              { value: "priority|desc", label: "Priority: Z to A" },
+              { value: "title|asc", label: "Task title: A to Z" },
+              { value: "title|desc", label: "Task title: Z to A" },
+              { value: "createdAt|desc", label: "Recently added" },
+              { value: "createdAt|asc", label: "Oldest added" },
+            ]}
+          />
+
+          <FormInput
+            label="Scheduled From"
+            name="scheduledDateFrom"
+            type="date"
+            value={scheduledDateFrom}
+            onChange={(event) => {
+              setScheduledDateFrom(event.target.value);
+              setPageNumber(1);
+            }}
+          />
+
+          <FormInput
+            label="Scheduled To"
+            name="scheduledDateTo"
+            type="date"
+            value={scheduledDateTo}
+            onChange={(event) => {
+              setScheduledDateTo(event.target.value);
+              setPageNumber(1);
+            }}
+          />
+        </div>
+
+        <div className="flex justify-end border-t border-slate-100 pt-3">
+          <button
+            type="button"
+            onClick={handleResetFilters}
+            className="px-4 py-2 text-sm font-medium text-slate-600 border border-slate-300 rounded-lg hover:bg-slate-50 transition"
+          >
+            Reset Filters
+          </button>
+        </div>
       </div>
 
       {/* Error */}
       {error && (
         <div className="bg-red-50 text-red-700 border border-red-200 rounded-lg p-3 text-sm">
           {error}
+        </div>
+      )}
+
+      {/* Status loading error */}
+      {statusError && (
+        <div className="bg-red-50 text-red-700 border border-red-200 rounded-lg p-3 text-sm">
+          {statusError}
         </div>
       )}
 
@@ -326,7 +547,11 @@ function MyTasks() {
       {/* Task Details Modal */}
       <Modal
         isOpen={showDetailsModal}
-        onClose={() => setShowDetailsModal(false)}
+        onClose={() => {
+          if (!showUpdateModal && !saving) {
+            setShowDetailsModal(false);
+          }
+        }}
         title="Task Details"
         size="2xl"
       >
@@ -381,11 +606,11 @@ function MyTasks() {
 
               <div>
                 <p className="text-xs text-slate-500">Current Status</p>
-                {renderTaskStatus(selectedTask.taskStatusName)}
+                <StatusBadge status={selectedTask.taskStatusName} />
               </div>
 
               <div>
-                <p className="text-xs text-slate-500">Active</p>
+                <p className="text-xs text-slate-500">Record State</p>
                 <StatusBadge isActive={selectedTask.isActive} />
               </div>
 
@@ -436,7 +661,9 @@ function MyTasks() {
                   {
                     key: "newStatusName",
                     label: "New Status",
-                    render: (row) => renderTaskStatus(row.newStatusName),
+                    render: (row) => (
+                      <StatusBadge status={row.newStatusName} />
+                    ),
                   },
                   {
                     key: "userName",
@@ -495,13 +722,20 @@ function MyTasks() {
 
             {/* Actions */}
             <div className="flex justify-end border-t border-slate-200 pt-4">
-              <button
-                type="button"
-                onClick={handleOpenUpdateModal}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg text-sm font-medium"
-              >
-                Update Status
-              </button>
+              {getNextStatus(selectedTask) ? (
+                <button
+                  type="button"
+                  onClick={handleOpenUpdateModal}
+                  disabled={statuses.length === 0 || saving}
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg text-sm font-medium disabled:opacity-50"
+                >
+                  {getNextActionLabel(selectedTask)}
+                </button>
+              ) : (
+                <span className="text-sm text-slate-500">
+                  No further status updates available.
+                </span>
+              )}
             </div>
 
           </div>
@@ -525,34 +759,31 @@ function MyTasks() {
             </div>
           )}
 
-          {statusError && (
-            <div className="bg-red-50 text-red-700 border border-red-200 rounded-lg p-3 text-sm">
-              {statusError}
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-2">
+              Current Status
+            </label>
+
+            <div className="w-full border border-slate-200 bg-slate-50 rounded-lg px-3 py-2 text-sm text-slate-700">
+              <StatusBadge status={selectedTask?.taskStatusName} />
             </div>
-          )}
+          </div>
 
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-2">
               New Status
             </label>
 
-            <select
-              value={newStatusId}
-              onChange={(e) => setNewStatusId(e.target.value)}
-              required
-              className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm"
-            >
-              <option value="">Select Status</option>
-
-              {statuses.map((status) => (
-                <option
-                  key={status.taskStatusId}
-                  value={status.taskStatusId}
-                >
-                  {status.taskStatusName}
-                </option>
-              ))}
-            </select>
+            <div className="w-full border border-slate-200 bg-slate-50 rounded-lg px-3 py-2 text-sm text-slate-700">
+              <StatusBadge
+                status={
+                  statuses.find(
+                    (status) =>
+                      status.taskStatusId === Number(newStatusId)
+                  )?.taskStatusName || "Loading status..."
+                }
+              />
+            </div>
           </div>
 
           <div>
@@ -569,19 +800,31 @@ function MyTasks() {
             />
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-2">
-              Completion Note
-            </label>
+          {normalizeStatus(
+            statuses.find(
+              (status) =>
+                status.taskStatusId === Number(newStatusId)
+            )?.taskStatusCode ||
+              statuses.find(
+                (status) =>
+                  status.taskStatusId === Number(newStatusId)
+              )?.taskStatusName
+          ) === "COMPLETED" && (
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-2">
+                Completion Note <span className="text-red-500">*</span>
+              </label>
 
-            <textarea
-              value={completionNote}
-              onChange={(e) => setCompletionNote(e.target.value)}
-              rows={3}
-              placeholder="Add or update the completion note..."
-              className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm"
-            />
-          </div>
+              <textarea
+                value={completionNote}
+                onChange={(e) => setCompletionNote(e.target.value)}
+                rows={3}
+                required
+                placeholder="Describe the work completed..."
+                className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm"
+              />
+            </div>
+          )}
 
           <div className="flex justify-end gap-3 pt-3">
             <button
@@ -595,10 +838,10 @@ function MyTasks() {
 
             <button
               type="submit"
-              disabled={saving || statuses.length === 0}
+              disabled={saving || !newStatusId || statuses.length === 0}
               className="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium disabled:opacity-50"
             >
-              {saving ? "Updating..." : "Save Changes"}
+              {saving ? "Updating..." : "Confirm Status Update"}
             </button>
           </div>
 

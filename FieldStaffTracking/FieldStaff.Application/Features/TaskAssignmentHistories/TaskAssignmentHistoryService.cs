@@ -1,5 +1,6 @@
 ﻿using FieldStaff.Application.Features.ServiceTasks.DTOs;
 using FieldStaff.Application.Features.TaskAssignmentHistories.Interfaces;
+using FieldStaff.Domain.Entities;
 
 namespace FieldStaff.Application.Features.TaskAssignmentHistories
 {
@@ -36,6 +37,11 @@ namespace FieldStaff.Application.Features.TaskAssignmentHistories
                 Remarks = h.Remarks,
                 CreatedAt = h.CreatedAt
             }).ToList();
+        }
+
+        public async Task AddAsync(TaskAssignmentHistory history)
+        {
+            await _repository.AddAsync(history);
         }
     }
 }

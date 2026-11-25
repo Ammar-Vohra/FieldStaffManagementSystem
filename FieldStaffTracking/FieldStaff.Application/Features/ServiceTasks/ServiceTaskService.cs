@@ -9,6 +9,7 @@ using FieldStaff.Application.Features.Users.Interfaces;
 using FieldStaff.Application.Features.TaskStatusHistories.DTOs;
 using FieldStaff.Application.Features.TaskStatusHistories.Interfaces;
 using FieldStaff.Application.Features.TaskAssignmentHistories.Interfaces;
+using FieldStaff.Application.Features.TaskAssignmentHistories.DTOs;
 using FieldStaff.Domain.Entities;
 
 namespace FieldStaff.Application.Features.ServiceTasks
@@ -137,6 +138,35 @@ namespace FieldStaff.Application.Features.ServiceTasks
             return MapToResponseDto(serviceTask);
         }
 
+        public async Task<ServiceTaskHistoryDetailResponseDto?> GetServiceTaskHistoryDetailsAsync(int serviceTaskId)
+        {
+            var task = await _serviceTaskRepository.GetByIdAsync(serviceTaskId);
+            if (task == null)
+                return null;
+
+            var taskDto = MapToResponseDto(task);
+            return new ServiceTaskHistoryDetailResponseDto
+            {
+                ServiceTaskId = taskDto.ServiceTaskId,
+                Title = taskDto.Title,
+                Description = taskDto.Description,
+                CustomerId = taskDto.CustomerId,
+                CustomerName = taskDto.CustomerName,
+                AssignedStaffId = taskDto.AssignedStaffId,
+                AssignedStaffName = taskDto.AssignedStaffName,
+                TaskStatusId = taskDto.TaskStatusId,
+                TaskStatusName = taskDto.TaskStatusName,
+                TaskPriorityId = taskDto.TaskPriorityId,
+                TaskPriorityName = taskDto.TaskPriorityName,
+                ScheduledDate = taskDto.ScheduledDate,
+                CompletionNote = taskDto.CompletionNote,
+                IsActive = taskDto.IsActive,
+                CreatedAt = taskDto.CreatedAt,
+                StatusHistory = await _taskStatusHistoryService.GetByServiceTaskIdAsync(serviceTaskId),
+                AssignmentHistory = await _taskAssignmentHistoryService.GetByServiceTaskIdAsync(serviceTaskId)
+            };
+        }
+
         public async Task<PaginatedResponse<ServiceTaskResponseDto>> GetPagedServiceTasksAsync(
             ServiceTaskQueryParameters parameters)
         {
@@ -237,9 +267,9 @@ namespace FieldStaff.Application.Features.ServiceTasks
 
 
         public async Task<ServiceTaskHistoryDetailResponseDto?> UpdateMyTaskStatusAsync(
-            int serviceTaskId,
-            UpdateTaskStatusHistoryRequestDto request,
-            int staffId)
+    int serviceTaskId,
+    UpdateTaskStatusHistoryRequestDto request,
+    int staffId)
         {
             if (staffId <= 0)
                 throw new InvalidOperationException("Invalid staff ID.");
@@ -249,29 +279,57 @@ namespace FieldStaff.Application.Features.ServiceTasks
             if (serviceTask == null || serviceTask.AssignedStaffId != staffId)
                 return null;
 
-            if (!serviceTask.IsActive)
+            if (!serviceTask.IsActive || serviceTask.IsDeleted)
                 throw new InvalidOperationException("This task is inactive.");
 
+            // Get the current status.
+            var oldStatus = await _taskStatusRepository.GetByIdAsync(serviceTask.TaskStatusId);
+
+            if (oldStatus == null || !oldStatus.IsActive || oldStatus.IsDeleted)
+                throw new InvalidOperationException("Current task status is invalid.");
+
+            // Get the requested new status.
             var newStatus = await _taskStatusRepository.GetByIdAsync(request.NewStatusId);
 
-            if (newStatus == null || !newStatus.IsActive)
+            if (newStatus == null || !newStatus.IsActive || newStatus.IsDeleted)
                 throw new InvalidOperationException("Selected task status is invalid or inactive.");
 
-            var oldStatusId = serviceTask.TaskStatusId;
+            string currentStatusCode = oldStatus.TaskStatusCode.ToUpperInvariant();
+            string newStatusCode = newStatus.TaskStatusCode.ToUpperInvariant();
+
+            // Enforce allowed status transitions.
+            bool isValidTransition =
+                (currentStatusCode == "PENDING" && newStatusCode == "IN_PROGRESS") ||
+                (currentStatusCode == "OVERDUE" && newStatusCode == "IN_PROGRESS") ||
+                (currentStatusCode == "IN_PROGRESS" && newStatusCode == "COMPLETED");
+
+            if (!isValidTransition)
+                throw new InvalidOperationException(
+                    $"Invalid status transition: {oldStatus.TaskStatusName} to {newStatus.TaskStatusName}.");
+
+            // Completion note is mandatory when completing a task.
+            if (newStatusCode == "COMPLETED" &&
+                string.IsNullOrWhiteSpace(request.CompletionNote))
+            {
+                throw new InvalidOperationException(
+                    "Completion note is required when completing a task.");
+            }
+
             var now = DateTime.UtcNow;
 
             serviceTask.TaskStatusId = newStatus.TaskStatusId;
 
-            if (request.CompletionNote != null)
-                serviceTask.CompletionNote = request.CompletionNote.Trim();
+            if (newStatusCode == "COMPLETED")
+                serviceTask.CompletionNote = request.CompletionNote!.Trim();
 
             serviceTask.UpdatedBy = staffId;
             serviceTask.UpdatedAt = now;
 
+            // Record status change history.
             var history = new TaskStatusHistory
             {
                 ServiceTaskId = serviceTask.ServiceTaskId,
-                OldStatusId = oldStatusId,
+                OldStatusId = oldStatus.TaskStatusId,
                 NewStatusId = newStatus.TaskStatusId,
                 UserId = staffId,
                 Remarks = request.Remarks?.Trim(),
@@ -285,6 +343,67 @@ namespace FieldStaff.Application.Features.ServiceTasks
             await _serviceTaskRepository.SaveChangesAsync();
 
             return await GetMyTaskDetailsAsync(serviceTaskId, staffId);
+        }
+
+
+        public async Task<int> ProcessOverdueTasksAsync()
+        {
+            // Get Overdue status
+            var overdueStatus = await _taskStatusRepository
+                .GetByCodeAsync("OVERDUE");
+
+            if (overdueStatus == null)
+            {
+                throw new InvalidOperationException(
+                    "Overdue task status is not configured or inactive.");
+            }
+
+            // Get an active Admin user for audit tracking
+            var adminUser = await _userRepository.GetActiveAdminAsync();
+
+            if (adminUser == null)
+            {
+                throw new InvalidOperationException(
+                    "No active Admin user was found.");
+            }
+
+            var now = DateTime.UtcNow;
+
+            // Get Pending tasks whose scheduled date has passed
+            var overdueTasks = await _serviceTaskRepository
+                .GetPendingTasksPastScheduledDateAsync(now);
+
+            if (!overdueTasks.Any())
+                return 0;
+
+            foreach (var task in overdueTasks)
+            {
+                var oldStatusId = task.TaskStatusId;
+
+                // Update task status
+                task.TaskStatusId = overdueStatus.TaskStatusId;
+                task.UpdatedBy = adminUser.UserId;
+                task.UpdatedAt = now;
+
+                // Create status history
+                var history = new TaskStatusHistory
+                {
+                    ServiceTaskId = task.ServiceTaskId,
+                    OldStatusId = oldStatusId,
+                    NewStatusId = overdueStatus.TaskStatusId,
+                    UserId = adminUser.UserId,
+                    Remarks = "Automatically marked as Overdue because the task was not started by its scheduled date.",
+                    CreatedBy = adminUser.UserId,
+                    CreatedAt = now
+                };
+
+                await _taskStatusHistoryService.AddAsync(history);
+            }
+
+            // Save all changes
+            await _serviceTaskRepository.SaveChangesAsync();
+
+            return overdueTasks.Count;
         }
 
         public async Task<ServiceTaskResponseDto?> UpdateServiceTaskAsync(
@@ -315,6 +434,53 @@ namespace FieldStaff.Application.Features.ServiceTasks
             serviceTask.UpdatedBy = updatedByUserId;
             serviceTask.UpdatedAt = DateTime.UtcNow;
 
+            await _serviceTaskRepository.UpdateAsync(serviceTask);
+            await _serviceTaskRepository.SaveChangesAsync();
+
+            return MapToResponseDto(serviceTask);
+        }
+
+        public async Task<ServiceTaskResponseDto?> ReassignServiceTaskAsync(
+            int serviceTaskId,
+            ReassignServiceTaskRequestDto request,
+            int reassignedByUserId)
+        {
+            if (request.NewAssignedStaffId <= 0)
+                throw new InvalidOperationException("Select a valid field staff member.");
+
+            var serviceTask = await _serviceTaskRepository.GetByIdAsync(serviceTaskId);
+            if (serviceTask == null)
+                return null;
+
+            if (!serviceTask.IsActive)
+                throw new InvalidOperationException("Inactive tasks cannot be reassigned.");
+
+            var newStaff = await _userRepository.GetByIdAsync(request.NewAssignedStaffId);
+            if (newStaff == null || !newStaff.IsActive || newStaff.IsDeleted)
+                throw new InvalidOperationException("Selected field staff member was not found or is inactive.");
+
+            if (newStaff.Role == null || !newStaff.Role.RoleName.Equals("FieldStaff", StringComparison.OrdinalIgnoreCase))
+                throw new InvalidOperationException("Selected user is not a Field Staff member.");
+
+            if (serviceTask.AssignedStaffId == newStaff.UserId)
+                throw new InvalidOperationException("This task is already assigned to that staff member.");
+
+            var now = DateTime.UtcNow;
+            var history = new TaskAssignmentHistory
+            {
+                ServiceTaskId = serviceTask.ServiceTaskId,
+                OldAssignedStaffId = serviceTask.AssignedStaffId,
+                NewAssignedStaffId = newStaff.UserId,
+                Remarks = string.IsNullOrWhiteSpace(request.Remarks) ? null : request.Remarks.Trim(),
+                CreatedBy = reassignedByUserId,
+                CreatedAt = now
+            };
+
+            serviceTask.AssignedStaffId = newStaff.UserId;
+            serviceTask.UpdatedBy = reassignedByUserId;
+            serviceTask.UpdatedAt = now;
+
+            await _taskAssignmentHistoryService.AddAsync(history);
             await _serviceTaskRepository.UpdateAsync(serviceTask);
             await _serviceTaskRepository.SaveChangesAsync();
 

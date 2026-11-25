@@ -72,6 +72,11 @@ const updateServiceTask = async (id, taskData) => {
   return response.data;
 };
 
+const reassignServiceTask = async (id, assignmentData) => {
+  const response = await api.put(`/ServiceTask/${id}/assign`, assignmentData);
+  return response.data;
+};
+
 const deleteServiceTask = async (id) => {
   const response = await api.delete(`/ServiceTask/${id}`);
   return response.data;
@@ -85,6 +90,7 @@ const serviceTaskService = {
   getServiceTaskById,
   createServiceTask,
   updateServiceTask,
+  reassignServiceTask,
   deleteServiceTask,
 };
 

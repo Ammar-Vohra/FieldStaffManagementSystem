@@ -163,6 +163,19 @@ namespace FieldStaff.Infrastructure.Repositories
             return (tasks, totalRecords);
         }
 
+
+        public async Task<List<ServiceTask>> GetPendingTasksPastScheduledDateAsync(DateTime currentDateTime)
+        {
+            return await _context.ServiceTasks
+                .Include(t => t.TaskStatus)
+                .Where(t =>
+                    !t.IsDeleted &&
+                    t.IsActive &&
+                    t.TaskStatus.TaskStatusCode == "PENDING" &&
+                    t.ScheduledDate < currentDateTime)
+                .ToListAsync();
+        }
+
         public async Task<ServiceTask> CreateAsync(ServiceTask serviceTask)
         {
             await _context.ServiceTasks.AddAsync(serviceTask);

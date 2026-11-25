@@ -1,6 +1,7 @@
 ﻿using FieldStaff.Application.Features.ServiceTasks.DTOs;
 using FieldStaff.Application.Features.Common.DTOs;
 using FieldStaff.Application.Features.TaskStatusHistories.DTOs;
+using FieldStaff.Application.Features.TaskAssignmentHistories.DTOs;
 
 
 namespace FieldStaff.Application.Features.ServiceTasks.Interfaces
@@ -12,6 +13,7 @@ namespace FieldStaff.Application.Features.ServiceTasks.Interfaces
             int createdByUserId);
 
         Task<ServiceTaskResponseDto?> GetServiceTaskByIdAsync(int serviceTaskId);
+        Task<ServiceTaskHistoryDetailResponseDto?> GetServiceTaskHistoryDetailsAsync(int serviceTaskId);
         Task<PaginatedResponse<ServiceTaskResponseDto>> GetMyTasksAsync(
             int staffId,
             ServiceTaskQueryParameters parameters);
@@ -29,10 +31,17 @@ namespace FieldStaff.Application.Features.ServiceTasks.Interfaces
         Task<PaginatedResponse<ServiceTaskResponseDto>> GetPagedServiceTasksAsync(
             ServiceTaskQueryParameters parameters);
 
+        Task<int> ProcessOverdueTasksAsync();
+
         Task<ServiceTaskResponseDto?> UpdateServiceTaskAsync(
             int serviceTaskId,
             UpdateServiceTaskRequestDto request,
             int? updatedByUserId);
+
+        Task<ServiceTaskResponseDto?> ReassignServiceTaskAsync(
+            int serviceTaskId,
+            ReassignServiceTaskRequestDto request,
+            int reassignedByUserId);
 
         Task<bool> DeleteServiceTaskAsync(
             int serviceTaskId,

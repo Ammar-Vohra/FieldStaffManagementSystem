@@ -9,6 +9,7 @@ namespace FieldStaff.Application.Features.Users.Interfaces
         Task<User?> GetByIdAsync(int userId);
 
         Task<User?> GetByEmailAsync(string email);
+        Task<User?> GetActiveAdminAsync();
 
         Task<List<User>> GetAllAsync();
         Task<(List<User> Users, int TotalRecords)> GetPagedAsync(UserQueryParameters parameters);

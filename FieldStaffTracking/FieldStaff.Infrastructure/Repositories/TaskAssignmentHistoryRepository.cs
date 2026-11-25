@@ -15,8 +15,8 @@ namespace FieldStaff.Infrastructure.Repositories
             _context = context;
         }
 
-        public async Task<List<TaskAssignmentHistory>> GetByServiceTaskIdAsync(
-            int serviceTaskId)
+        public async Task<List<TaskAssignmentHistory>>
+            GetByServiceTaskIdAsync(int serviceTaskId)
         {
             return await _context.TaskAssignmentHistories
                 .AsNoTracking()

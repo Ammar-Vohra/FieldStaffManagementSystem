@@ -1,3 +1,5 @@
+import StatusBadge from "../common/StatusBadge";
+
 function RecentTasks({ tasks = [] }) {
     const formatDate = (date) => {
         if (!date) return "-";
@@ -53,9 +55,7 @@ function RecentTasks({ tasks = [] }) {
                                     </td>
 
                                     <td className="px-4 py-3">
-                                        <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700">
-                                            {task.statusName}
-                                        </span>
+                                        <StatusBadge status={task.statusName} />
                                     </td>
 
                                     <td className="px-4 py-3 text-gray-600">

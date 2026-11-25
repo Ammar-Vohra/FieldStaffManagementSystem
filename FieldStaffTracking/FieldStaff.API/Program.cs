@@ -2,6 +2,7 @@
 
 using FieldStaff.API.Authorization.Handlers;
 using FieldStaff.API.Authorization.Providers;
+using FieldStaff.API.BackgroundServices;
 using FieldStaff.API.Middleware;
 using FieldStaff.Application;
 using FieldStaff.Application.Common.Interfaces;
@@ -27,6 +28,7 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddSingleton<IAuthorizationPolicyProvider, PermissionPolicyProvider>();
 
 builder.Services.AddScoped<IAuthorizationHandler, PermissionAuthorizationHandler>();
+builder.Services.AddHostedService<OverdueTaskBackgroundService>();
 
 
 

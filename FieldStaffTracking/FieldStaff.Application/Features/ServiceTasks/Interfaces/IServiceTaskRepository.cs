@@ -10,6 +10,7 @@ namespace FieldStaff.Application.Features.ServiceTasks.Interfaces
         Task<(List<ServiceTask> Tasks, int TotalRecords)> GetPagedAsync(
             ServiceTaskQueryParameters parameters);
         Task<StatusTask?> GetByCodeAsync(string taskStatusCode);
+        Task<List<ServiceTask>> GetPendingTasksPastScheduledDateAsync(DateTime currentDateTime);
 
         Task<ServiceTask> CreateAsync(ServiceTask serviceTask);
 
