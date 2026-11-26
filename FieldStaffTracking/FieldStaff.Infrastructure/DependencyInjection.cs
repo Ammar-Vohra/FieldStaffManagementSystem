@@ -35,6 +35,9 @@ using FieldStaff.Application.Features.Dashboard.Interfaces;
 using FieldStaff.Application.Features.ServiceTasks;
 using FieldStaff.Application.Features.ServiceTasks.Interfaces;
 using FieldStaff.Application.Services;
+using FieldStaff.Application.Features.Chat.Interfaces;
+using FieldStaff.Application.Features.Chat;
+using FieldStaff.Infrastructure.ExternalServices.Groq;
 using FieldStaff.Infrastructure.Persistence;
 using FieldStaff.Infrastructure.Persistence.Repositories;
 using FieldStaff.Infrastructure.Repositories;
@@ -100,6 +103,10 @@ namespace FieldStaff.Infrastructure
             services.AddScoped<ITaskStatusHistoryService, TaskStatusHistoryService>();
             services.AddScoped<ITaskAssignmentHistoryService, TaskAssignmentHistoryService>();
             services.AddScoped<IDashboardService, DashboardService>();
+            services.AddScoped<IChatService, ChatService>();
+            services.AddHttpClient<IGroqChatClient, GroqChatClient>();
+            services.AddScoped<IChatToolService, ChatToolService>();
+
 
 
 

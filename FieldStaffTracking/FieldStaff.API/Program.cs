@@ -29,6 +29,7 @@ builder.Services.AddSingleton<IAuthorizationPolicyProvider, PermissionPolicyProv
 
 builder.Services.AddScoped<IAuthorizationHandler, PermissionAuthorizationHandler>();
 builder.Services.AddHostedService<OverdueTaskBackgroundService>();
+builder.Services.AddHttpClient();
 
 
 
