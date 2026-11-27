@@ -10,5 +10,8 @@ namespace FieldStaff.Application.Features.Chat.Interfaces
     {
         Task<object?> GetDashboardSummaryAsync(int roleId, int userId);
         Task<object?> GetOverdueTasksAsync(int roleId, int userId);
+
+        Task<object?> GetServiceTaskAsync(int roleId, int userId, string? search);
+
     }
 }

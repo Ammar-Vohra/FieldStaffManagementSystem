@@ -11,6 +11,7 @@ import StaffWorkload from "../components/dashboard/StaffWorkload";
 import RecentActivities from "../components/dashboard/RecentActivities";
 import FieldStaffTaskSection from "../components/dashboard/FieldStaffTaskSection";
 import StatusBadge from "../components/common/StatusBadge";
+import Chatbot from "../components/chat/Chatbot";
 
 function Dashboard() {
     const [summary, setSummary] = useState(null);
@@ -93,80 +94,87 @@ function Dashboard() {
             : "Overview of your field staff operations and service tasks.";
 
     return (
-        <div className="space-y-6 p-4 md:p-6">
+        <>
+            <div className="space-y-6 p-4 md:p-6">
 
-            {/* Dashboard Header */}
-            <div>
-                <h1 className="text-2xl font-bold text-gray-800">
-                    {dashboardTitle}
-                </h1>
+                {/* Dashboard Header */}
+                <div>
+                    <h1 className="text-2xl font-bold text-gray-800">
+                        {dashboardTitle}
+                    </h1>
 
-                <p className="mt-1 text-sm text-gray-500">
-                    {dashboardDescription}
-                </p>
-            </div>
-
-            {/* Summary Cards */}
-            <SummaryCards summary={summary} />
-
-            {/* Field Staff Dashboard */}
-            {isFieldStaff ? (
-                <div className="space-y-6">
-
-                    <FieldStaffTaskSection
-                        title="Today's Tasks"
-                        tasks={summary.todaysTasks || []}
-                        emptyMessage="You have no tasks scheduled for today."
-                    />
-
-                    <FieldStaffTaskSection
-                        title="Upcoming Tasks"
-                        tasks={summary.upcomingTasks || []}
-                        emptyMessage="You have no upcoming tasks."
-                    />
-
-                    <FieldStaffTaskSection
-                        title="Recently Completed Tasks"
-                        tasks={summary.recentCompletedTasks || []}
-                        emptyMessage="You haven't completed any tasks yet."
-                    />
-
+                    <p className="mt-1 text-sm text-gray-500">
+                        {dashboardDescription}
+                    </p>
                 </div>
-            ) : (
-                <>
-                    {/* Admin and Supervisor Dashboard */}
-                    <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
 
-                        <TaskStatusChart
-                            data={summary.taskStatusDistribution || []}
+                {/* Summary Cards */}
+                <SummaryCards summary={summary} />
+
+                {/* Field Staff Dashboard */}
+                {isFieldStaff ? (
+                    <div className="space-y-6">
+
+                        <FieldStaffTaskSection
+                            title="Today's Tasks"
+                            tasks={summary.todaysTasks || []}
+                            emptyMessage="You have no tasks scheduled for today."
                         />
 
-                        <StaffWorkload
-                            staff={summary.staffWorkload || []}
+                        <FieldStaffTaskSection
+                            title="Upcoming Tasks"
+                            tasks={summary.upcomingTasks || []}
+                            emptyMessage="You have no upcoming tasks."
+                        />
+
+                        <FieldStaffTaskSection
+                            title="Recently Completed Tasks"
+                            tasks={summary.recentCompletedTasks || []}
+                            emptyMessage="You haven't completed any tasks yet."
                         />
 
                     </div>
+                ) : (
+                    <>
+                        {/* Admin and Supervisor Dashboard */}
+                        <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
 
-                    {/* Today's Tasks */}
-                    <TodaysTasks
-                        tasks={summary.todaysTasks || []}
-                    />
+                            <TaskStatusChart
+                                data={summary.taskStatusDistribution || []}
+                            />
 
-                    {/* Recent Tasks */}
-                    <RecentTasks
-                        tasks={summary.recentTasks || []}
-                    />
+                            <StaffWorkload
+                                staff={summary.staffWorkload || []}
+                            />
 
-                    {/* Recent Activities - Supervisor only */}
-                    {isSupervisor && (
-                        <RecentActivities
-                            activities={summary.recentActivities || []}
+                        </div>
+
+                        {/* Today's Tasks */}
+                        <TodaysTasks
+                            tasks={summary.todaysTasks || []}
                         />
-                    )}
-                </>
-            )}
 
-        </div>
+                        {/* Recent Tasks */}
+                        <RecentTasks
+                            tasks={summary.recentTasks || []}
+                        />
+
+                        {/* Recent Activities - Supervisor only */}
+                        {isSupervisor && (
+                            <RecentActivities
+                                activities={summary.recentActivities || []}
+                            />
+                        )}
+                    </>
+                )}
+                
+                
+            </div>
+
+            {/* <Chatbot /> */}
+
+        </>
+            
     );
 }
 

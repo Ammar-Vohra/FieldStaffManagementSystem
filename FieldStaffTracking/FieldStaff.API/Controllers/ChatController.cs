@@ -24,7 +24,7 @@ namespace FieldStaff.API.Controllers
         {
 
             var roleIdClaim = User.FindFirst("RoleId") ?? User.FindFirst("roleId");
-            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier) ?? User.FindFirst("UserId") ?? User.FindFirst("roleId");
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier) ?? User.FindFirst("UserId") ?? User.FindFirst("userId");
 
 
             if (roleIdClaim == null || !int.TryParse(roleIdClaim.Value, out var roleId))

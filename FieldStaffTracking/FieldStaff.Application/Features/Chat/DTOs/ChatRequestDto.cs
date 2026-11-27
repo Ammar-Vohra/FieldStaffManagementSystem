@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using FieldStaff.Application.Features.Chat.DTOs;
 
 namespace FieldStaff.Application.Features.Chat.DTOs
 {
@@ -12,5 +10,7 @@ namespace FieldStaff.Application.Features.Chat.DTOs
         [Required]
         [MaxLength(2000)]
         public string Message { get; set; } = string.Empty;
+
+        public List<ChatMessageDto> History { get; set; } = new();
     }
 }

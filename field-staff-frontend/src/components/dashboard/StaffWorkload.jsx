@@ -24,6 +24,7 @@ function StaffWorkload({ staff = [] }) {
                                 <th className="px-4 py-3">Total Tasks</th>
                                 <th className="px-4 py-3">Pending</th>
                                 <th className="px-4 py-3">In Progress</th>
+                                {/* <th className="px-4 py-3">Overdue</th> */}
                                 <th className="px-4 py-3">Completed</th>
                             </tr>
                         </thead>
@@ -49,6 +50,10 @@ function StaffWorkload({ staff = [] }) {
                                     <td className="px-4 py-3 text-gray-600">
                                         {member.inProgressTasks}
                                     </td>
+
+                                    {/* <td className="px-4 py-3 text-gray-600">
+                                        {member.overDueTasks}
+                                    </td> */}
 
                                     <td className="px-4 py-3 text-gray-600">
                                         {member.completedTasks}
